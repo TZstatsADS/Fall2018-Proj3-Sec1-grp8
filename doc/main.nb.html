@@ -1705,15 +1705,26 @@ $(document).ready(function () {
 <p>This file is currently a template for running evaluation experiments of image analysis (or any predictive modeling). You should update it according to your codes but following precisely the same structure.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYoIXJlcXVpcmUoXCJFQkltYWdlXCIpKXtcbiAgc291cmNlKFwiaHR0cHM6Ly9iaW9jb25kdWN0b3Iub3JnL2Jpb2NMaXRlLlJcIilcbiAgYmlvY0xpdGUoXCJFQkltYWdlXCIpXG59XG5pZighcmVxdWlyZShcImdibVwiKSl7XG4gIGluc3RhbGwucGFja2FnZXMoXCJnYm1cIilcbn1cbmxpYnJhcnkoXCJFQkltYWdlXCIpXG5saWJyYXJ5KFwiZ2JtXCIpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYoIXJlcXVpcmUoXCJFQkltYWdlXCIpKXtcbiAgc291cmNlKFwiaHR0cHM6Ly9iaW9jb25kdWN0b3Iub3JnL2Jpb2NMaXRlLlJcIilcbiAgYmlvY0xpdGUoXCJFQkltYWdlXCIpXG59XG5gYGAifQ== -->
 <pre class="r"><code>if(!require(&quot;EBImage&quot;)){
   source(&quot;https://bioconductor.org/biocLite.R&quot;)
   biocLite(&quot;EBImage&quot;)
-}
-if(!require(&quot;gbm&quot;)){
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBFQkltYWdlXG4ifQ== -->
+<pre><code>Loading required package: EBImage</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYoIXJlcXVpcmUoXCJnYm1cIikpe1xuICBpbnN0YWxsLnBhY2thZ2VzKFwiZ2JtXCIpXG59XG5gYGAifQ== -->
+<pre class="r"><code>if(!require(&quot;gbm&quot;)){
   install.packages(&quot;gbm&quot;)
-}
-library(&quot;EBImage&quot;)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBnYm1cbkxvYWRlZCBnYm0gMi4xLjRcbiJ9 -->
+<pre><code>Loading required package: gbm
+Loaded gbm 2.1.4</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShcIkVCSW1hZ2VcIilcbmxpYnJhcnkoXCJnYm1cIilcbmBgYCJ9 -->
+<pre class="r"><code>library(&quot;EBImage&quot;)
 library(&quot;gbm&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -1790,18 +1801,16 @@ model_labels = paste(&quot;GBM with depth =&quot;, model_values)</code></pre>
 <p><code>feature.R</code> should be the wrapper for all your feature engineering functions and options. The function <code>feature( )</code> should have options that correspond to different scenarios for your project and produces an R object that contains features and responses that are required by all the models you are going to evaluate later. + <code>feature.R</code> + Input: a path for low-resolution images. + Input: a path for high-resolution images. + Output: an RData file that contains extracted features and corresponding responses</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi4vbGliL2ZlYXR1cmUuUlwiKVxudG1fZmVhdHVyZV90cmFpbiA8LSBOQVxuaWYocnVuLmZlYXR1cmUudHJhaW4pe1xuICB0bV9mZWF0dXJlX3RyYWluIDwtIHN5c3RlbS50aW1lKGRhdF90cmFpbiA8LSBmZWF0dXJlKHRyYWluX0xSX2RpciwgdHJhaW5fSFJfZGlyKSlcbiAgZmVhdF90cmFpbiA8LSBkYXRfdHJhaW4kZmVhdHVyZVxuICBsYWJlbF90cmFpbiA8LSBkYXRfdHJhaW4kbGFiZWxcbn1cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi4vbGliL2ZlYXR1cmUuUlwiKVxudG1fZmVhdHVyZV90cmFpbiA8LSBOQVxuaWYocnVuLmZlYXR1cmUudHJhaW4pe1xuICB0bV9mZWF0dXJlX3RyYWluIDwtIHN5c3RlbS50aW1lKGRhdF90cmFpbiA8LSBmZWF0dXJlKHRyYWluX0xSX2RpciwgdHJhaW5fSFJfZGlyKSlcbiAgZmVhdF90cmFpbiA8LSBkYXRfdHJhaW4kZmVhdHVyZVxuICBsYWJlbF90cmFpbiA8LSBkYXRfdHJhaW4kbGFiZWxcbn1cbiNzYXZlKGRhdF90cmFpbiwgZmlsZT1cIi4vb3V0cHV0L2ZlYXR1cmVfdHJhaW4uUkRhdGFcIilcbmBgYCJ9 -->
 <pre class="r"><code>source(&quot;../lib/feature.R&quot;)
 tm_feature_train &lt;- NA
 if(run.feature.train){
   tm_feature_train &lt;- system.time(dat_train &lt;- feature(train_LR_dir, train_HR_dir))
   feat_train &lt;- dat_train$feature
   label_train &lt;- dat_train$label
-}</code></pre>
+}
+#save(dat_train, file=&quot;./output/feature_train.RData&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiVGltaW5nIHN0b3BwZWQgYXQ6IDY0LjM5IDkzLjgyIDI3Ni44XG4ifQ== -->
-<pre><code>Timing stopped at: 64.39 93.82 276.8</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1824,19 +1833,50 @@ source(&quot;../lib/test.R&quot;)</code></pre>
 </ul>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi4vbGliL2Nyb3NzX3ZhbGlkYXRpb24uUlwiKVxuaWYocnVuLmN2KXtcbiAgZXJyX2N2IDwtIGFycmF5KGRpbT1jKGxlbmd0aChtb2RlbF92YWx1ZXMpLCAyKSlcbiAgZm9yKGsgaW4gMTpsZW5ndGgobW9kZWxfdmFsdWVzKSl7XG4gICAgY2F0KFwiaz1cIiwgaywgXCJcXG5cIilcbiAgICBlcnJfY3ZbayxdIDwtIGN2LmZ1bmN0aW9uKGZlYXRfdHJhaW4sIGxhYmVsX3RyYWluLCBtb2RlbF92YWx1ZXNba10sIEspXG4gIH1cbiAgc2F2ZShlcnJfY3YsIGZpbGU9XCIuLi9vdXRwdXQvZXJyX2N2LlJEYXRhXCIpXG59XG5gYGAifQ== -->
-<pre class="r"><code>source(&quot;../lib/cross_validation.R&quot;)
-if(run.cv){
-  err_cv &lt;- array(dim=c(length(model_values), 2))
-  for(k in 1:length(model_values)){
-    cat(&quot;k=&quot;, k, &quot;\n&quot;)
-    err_cv[k,] &lt;- cv.function(feat_train, label_train, model_values[k], K)
-  }
-  save(err_cv, file=&quot;../output/err_cv.RData&quot;)
-}</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXJyX2N2W2ssXSA8LSBjdi5mdW5jdGlvbihmZWF0X3RyYWluLCBsYWJlbF90cmFpbiwgbW9kZWxfdmFsdWVzW2tdLCBLKVxuXG5gYGAifQ== -->
+<pre class="r"><code>err_cv[k,] &lt;- cv.function(feat_train, label_train, model_values[k], K)
+</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaz0gMSBcbiJ9 -->
-<pre><code>k= 1 </code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiZGVidWdnaW5nIGluOiBjdi5mdW5jdGlvbihmZWF0X3RyYWluLCBsYWJlbF90cmFpbiwgbW9kZWxfdmFsdWVzW2tdLCBLKVxuZGVidWcgYXQgLi4vbGliL2Nyb3NzX3ZhbGlkYXRpb24uUiM4OiB7XG4gICAgbiA8LSBkaW0oeS50cmFpbilbMV1cbiAgICBuLmZvbGQgPC0gZmxvb3Iobi9LKVxuICAgIHMgPC0gc2FtcGxlKHJlcCgxOkssIGMocmVwKG4uZm9sZCwgSyAtIDEpLCBuIC0gKEsgLSAxKSAqIFxuICAgICAgICBuLmZvbGQpKSlcbiAgICBjdi5lcnJvciA8LSByZXAoTkEsIEspXG4gICAgZm9yIChpIGluIDE6Sykge1xuICAgICAgICB0cmFpbi5kYXRhIDwtIFgudHJhaW5bcyAhPSBpLCAsIF1cbiAgICAgICAgdHJhaW4ubGFiZWwgPC0geS50cmFpbltzICE9IGksICwgXVxuICAgICAgICB0ZXN0LmRhdGEgPC0gWC50cmFpbltzID09IGksICwgXVxuICAgICAgICB0ZXN0LmxhYmVsIDwtIHkudHJhaW5bcyA9PSBpLCAsIF1cbiAgICAgICAgcGFyIDwtIGxpc3QoZGVwdGggPSBkKVxuICAgICAgICBmaXQgPC0gdHJhaW4odHJhaW4uZGF0YSwgdHJhaW4ubGFiZWwsIHBhcilcbiAgICAgICAgcHJlZCA8LSB0ZXN0KGZpdCwgdGVzdC5kYXRhKVxuICAgICAgICBjdi5lcnJvcltpXSA8LSBtZWFuKChwcmVkIC0gdGVzdC5sYWJlbCleMilcbiAgICB9XG4gICAgcmV0dXJuKGMobWVhbihjdi5lcnJvciksIHNkKGN2LmVycm9yKSkpXG59XG5kZWJ1ZyBhdCAuLi9saWIvY3Jvc3NfdmFsaWRhdGlvbi5SIzEwOiBuIDwtIGRpbSh5LnRyYWluKVsxXVxuZGVidWcgYXQgLi4vbGliL2Nyb3NzX3ZhbGlkYXRpb24uUiMxMTogbi5mb2xkIDwtIGZsb29yKG4vSylcbmRlYnVnIGF0IC4uL2xpYi9jcm9zc192YWxpZGF0aW9uLlIjMTI6IHMgPC0gc2FtcGxlKHJlcCgxOkssIGMocmVwKG4uZm9sZCwgSyAtIDEpLCBuIC0gKEsgLSAxKSAqIG4uZm9sZCkpKVxuZGVidWcgYXQgLi4vbGliL2Nyb3NzX3ZhbGlkYXRpb24uUiMxMzogY3YuZXJyb3IgPC0gcmVwKE5BLCBLKVxuZGVidWcgYXQgLi4vbGliL2Nyb3NzX3ZhbGlkYXRpb24uUiMxNTogZm9yIChpIGluIDE6Sykge1xuICAgIHRyYWluLmRhdGEgPC0gWC50cmFpbltzICE9IGksICwgXVxuICAgIHRyYWluLmxhYmVsIDwtIHkudHJhaW5bcyAhPSBpLCAsIF1cbiAgICB0ZXN0LmRhdGEgPC0gWC50cmFpbltzID09IGksICwgXVxuICAgIHRlc3QubGFiZWwgPC0geS50cmFpbltzID09IGksICwgXVxuICAgIHBhciA8LSBsaXN0KGRlcHRoID0gZClcbiAgICBmaXQgPC0gdHJhaW4odHJhaW4uZGF0YSwgdHJhaW4ubGFiZWwsIHBhcilcbiAgICBwcmVkIDwtIHRlc3QoZml0LCB0ZXN0LmRhdGEpXG4gICAgY3YuZXJyb3JbaV0gPC0gbWVhbigocHJlZCAtIHRlc3QubGFiZWwpXjIpXG59XG5kZWJ1ZyBhdCAuLi9saWIvY3Jvc3NfdmFsaWRhdGlvbi5SIzE2OiB0cmFpbi5kYXRhIDwtIFgudHJhaW5bcyAhPSBpLCAsIF1cbmRlYnVnIGF0IC4uL2xpYi9jcm9zc192YWxpZGF0aW9uLlIjMTc6IHRyYWluLmxhYmVsIDwtIHkudHJhaW5bcyAhPSBpLCAsIF1cbmRlYnVnIGF0IC4uL2xpYi9jcm9zc192YWxpZGF0aW9uLlIjMTg6IHRlc3QuZGF0YSA8LSBYLnRyYWluW3MgPT0gaSwgLCBdXG5kZWJ1ZyBhdCAuLi9saWIvY3Jvc3NfdmFsaWRhdGlvbi5SIzE5OiB0ZXN0LmxhYmVsIDwtIHkudHJhaW5bcyA9PSBpLCAsIF1cbmRlYnVnIGF0IC4uL2xpYi9jcm9zc192YWxpZGF0aW9uLlIjMjE6IHBhciA8LSBsaXN0KGRlcHRoID0gZClcbmRlYnVnIGF0IC4uL2xpYi9jcm9zc192YWxpZGF0aW9uLlIjMjI6IGZpdCA8LSB0cmFpbih0cmFpbi5kYXRhLCB0cmFpbi5sYWJlbCwgcGFyKVxuIn0= -->
+<pre><code>debugging in: cv.function(feat_train, label_train, model_values[k], K)
+debug at ../lib/cross_validation.R#8: {
+    n &lt;- dim(y.train)[1]
+    n.fold &lt;- floor(n/K)
+    s &lt;- sample(rep(1:K, c(rep(n.fold, K - 1), n - (K - 1) * 
+        n.fold)))
+    cv.error &lt;- rep(NA, K)
+    for (i in 1:K) {
+        train.data &lt;- X.train[s != i, , ]
+        train.label &lt;- y.train[s != i, , ]
+        test.data &lt;- X.train[s == i, , ]
+        test.label &lt;- y.train[s == i, , ]
+        par &lt;- list(depth = d)
+        fit &lt;- train(train.data, train.label, par)
+        pred &lt;- test(fit, test.data)
+        cv.error[i] &lt;- mean((pred - test.label)^2)
+    }
+    return(c(mean(cv.error), sd(cv.error)))
+}
+debug at ../lib/cross_validation.R#10: n &lt;- dim(y.train)[1]
+debug at ../lib/cross_validation.R#11: n.fold &lt;- floor(n/K)
+debug at ../lib/cross_validation.R#12: s &lt;- sample(rep(1:K, c(rep(n.fold, K - 1), n - (K - 1) * n.fold)))
+debug at ../lib/cross_validation.R#13: cv.error &lt;- rep(NA, K)
+debug at ../lib/cross_validation.R#15: for (i in 1:K) {
+    train.data &lt;- X.train[s != i, , ]
+    train.label &lt;- y.train[s != i, , ]
+    test.data &lt;- X.train[s == i, , ]
+    test.label &lt;- y.train[s == i, , ]
+    par &lt;- list(depth = d)
+    fit &lt;- train(train.data, train.label, par)
+    pred &lt;- test(fit, test.data)
+    cv.error[i] &lt;- mean((pred - test.label)^2)
+}
+debug at ../lib/cross_validation.R#16: train.data &lt;- X.train[s != i, , ]
+debug at ../lib/cross_validation.R#17: train.label &lt;- y.train[s != i, , ]
+debug at ../lib/cross_validation.R#18: test.data &lt;- X.train[s == i, , ]
+debug at ../lib/cross_validation.R#19: test.label &lt;- y.train[s == i, , ]
+debug at ../lib/cross_validation.R#21: par &lt;- list(depth = d)
+debug at ../lib/cross_validation.R#22: fit &lt;- train(train.data, train.label, par)</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gY2hlY2tNaXNzaW5nKHgsIHkpIDogXG4gIE1pc3NpbmcgdmFsdWVzIGFyZSBub3QgYWxsb3dlZCBpbiB0aGUgcmVzcG9uc2VcbiJ9 -->
 <pre><code>Error in checkMissing(x, y) : 

@@ -13,7 +13,7 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   ###        + number of points sampled from each LR image
   ### Output: an .RData file contains processed features and responses for the images
 
-# 
+
   # LR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/LR/"
   # HR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/HR/"
 
@@ -26,11 +26,12 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   featMat <- array(NA, c(n_files * n_points, 8, 3))
   labMat <- array(NA, c(n_files * n_points, 4, 3))
   
-  library(doMC)
-  registerDoMC(cores=2)
-  foreach(i = 1:n_files) %dopar% {
+  # library(doMC)
+  # registerDoMC(cores=2)
+  # foreach(i = 1:n_files) %dopar% {
   ### read LR/HR image pairs
-  # for(i in 1:n_files){
+  for(i in 1:n_files){
+  # for(i in  (2 * n_files/3 + 1) : n_files){
     
     imgLR <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
     imgHR <- readImage(paste0(HR_dir,  "img_", sprintf("%04d", i), ".jpg"))
@@ -73,7 +74,7 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
                             rep(vectorized[23], 9))
         vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
         
-        featMat[(i-1) * n_points + p,,] <- vectorized
+        featMat[(i-1) * n_points + p,,] <- matrix(vectorized, ncol = 3)
     
         ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
     
@@ -81,6 +82,7 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
                               (y[p] * 2 - 1):(y[p] * 2), ]
         labMat[(i-1) * n_points + p,,] <- c(square)
     }
+    print(i)
   }
   return(list(feature = featMat, label = labMat))
 }

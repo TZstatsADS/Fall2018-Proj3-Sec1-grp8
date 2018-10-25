@@ -26,8 +26,11 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   featMat <- array(NA, c(n_files * n_points, 8, 3))
   labMat <- array(NA, c(n_files * n_points, 4, 3))
   
+  library(doMC)
+  registerDoMC(cores=2)
+  foreach(i = 1:n_files) %dopar% {
   ### read LR/HR image pairs
-  for(i in 1:n_files){
+  # for(i in 1:n_files){
     
     imgLR <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
     imgHR <- readImage(paste0(HR_dir,  "img_", sprintf("%04d", i), ".jpg"))

@@ -14,8 +14,8 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   ### Output: an .RData file contains processed features and responses for the images
 
 # 
-#   LR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/LR/"
-#   HR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/HR/"
+  # LR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/LR/"
+  # HR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/HR/"
 
   # 
   ### load libraries
@@ -35,6 +35,7 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
     ### step 1. sample n_points from imgLR
     width <- dim(imgLR@.Data)[1]
     height <- dim(imgLR@.Data)[2]
+    set.seed(100)
     x <- sample(1:width, n_points, replace = T)
     y <- sample(1:height, n_points, replace = T)
     
@@ -63,9 +64,14 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
           square <- aperm(apply(square, c(1, 3), c, 0), c(2, 1, 3))          
         }
         
-        featMat[(i-1) * n_points + p,,] <- c(square)[c(-5, -14, -23)] # no central pixel
+        vectorized <- c(square)
+        vectorized <- vectorized - (!vectorized == 0) * c(rep(vectorized[5], 9),
+                            rep(vectorized[14], 9),
+                            rep(vectorized[23], 9))
+        vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
+        
+        featMat[(i-1) * n_points + p,,] <- vectorized
     
-
         ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
     
         square <- imgHR@.Data[(x[p] * 2 - 1):(x[p] * 2), 

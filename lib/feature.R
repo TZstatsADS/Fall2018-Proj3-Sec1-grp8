@@ -63,14 +63,14 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
           square <- aperm(apply(square, c(1, 3), c, 0), c(2, 1, 3))          
         }
         
-        featMat[p,,] <- c(square)[c(-5, -14, -23)] # no central pixel
+        featMat[(i-1) * n_points + p,,] <- c(square)[c(-5, -14, -23)] # no central pixel
     
 
         ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
     
         square <- imgHR@.Data[(x[p] * 2 - 1):(x[p] * 2), 
                               (y[p] * 2 - 1):(y[p] * 2), ]
-        labMat[p,,] <- c(square)
+        labMat[(i-1) * n_points + p,,] <- c(square)
     }
   }
   return(list(feature = featMat, label = labMat))

@@ -36,7 +36,7 @@ set.seed(2018)
 
 Provide directories for training images. Low-resolution (LR) image set and High-resolution (HR) image set will be in different subfolders. 
 ```{r}
-train_dir <- "../data/train_setSmall/" # This will be modified for different data sets.
+train_dir <- "../data/train_set/" # This will be modified for different data sets.
 train_LR_dir <- paste(train_dir, "LR/", sep="")
 train_HR_dir <- paste(train_dir, "HR/", sep="")
 train_label_path <- paste(train_dir, "label.csv", sep="") 

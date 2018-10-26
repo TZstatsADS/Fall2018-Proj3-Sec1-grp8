@@ -1,5 +1,5 @@
 #############################################################
-### Construct features and responses for training images###
+### Construct features and responses for training images  ###
 #############################################################
 
 ### Authors: Chengliang Tang/Tian Zheng
@@ -31,6 +31,7 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   # foreach(i = 1:n_files) %dopar% {
   ### read LR/HR image pairs
   for(i in 1:n_files){
+  # for(i in  (2 * n_files/3 + 1) : (2 * n_files/3 + 4)){
   # for(i in  (2 * n_files/3 + 1) : n_files){
     
     imgLR <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
@@ -70,11 +71,12 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
         
         vectorized <- c(square)
         vectorized <- vectorized - (!vectorized == 0) * c(rep(vectorized[5], 9),
-                            rep(vectorized[14], 9),
-                            rep(vectorized[23], 9))
+                                                          rep(vectorized[14], 9),
+                                                          rep(vectorized[23], 9))
         vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
         
-        featMat[(i-1) * n_points + p,,] <- matrix(vectorized, ncol = 3)
+        featMat[(i-1) * n_points + p,,] <- vectorized
+        # featMat[(i-1) * n_points + p,,] <- matrix(vectorized, ncol = 3)
     
         ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
     

@@ -22,7 +22,7 @@ train <- function(dat_train, label_train, par=NULL){
   modelList <- list()
   
   ### Train with gradient boosting model
-  if(is.null(myDepth)){
+  if(is.null(par)){
     depth <- 3
     trees <- 200
     bags <- 0.5

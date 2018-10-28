@@ -18,8 +18,8 @@ cv.function <- function(X.train, y.train, d, K){
     test.data <- X.train[s == i, ,]
     test.label <- y.train[s == i, ,]
     
-    par <- list(depth=d)
-    fit <- train(train.data, train.label, par)
+    #par <- list(depth=d)
+    fit <- train(train.data, train.label, d)
     pred <- test(fit, test.data)  
     cv.error[i] <- mean((pred - test.label)^2)  
     

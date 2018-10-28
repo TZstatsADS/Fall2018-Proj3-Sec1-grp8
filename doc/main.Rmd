@@ -67,7 +67,10 @@ depths <- seq(3, 11, 2)
 trees <- seq(180, 220, 10)
 bags <- seq(0.3, 0.7, 0.1)
 
-model_labels = paste("GBM with depth =", model_values)
+# all combinations
+model_values <- expand.grid(depths = depths, trees = trees, bags = bags)
+
+# model_labels = paste("GBM with depth =", model_values)
 
 ```
 
@@ -89,15 +92,17 @@ extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
 
 ```{r feature}
 source("../lib/feature.R")
+# 
+# tm_feature_train <- NA
+# if(run.feature.train){
+#   tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
+#   feat_train <- dat_train$feature
+#   label_train <- dat_train$label
+# }
 
-tm_feature_train <- NA
-if(run.feature.train){
-  tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
-  feat_train <- dat_train$feature
-  label_train <- dat_train$label
-}
+# save(dat_train, file="../output/feature_train.RData")
+load(file="../output/feature_train.RData")
 
-save(dat_train, file="../output/feature_train.RData")
 ```
 
 
@@ -126,7 +131,7 @@ if(run.cv){
   err_cv <- array(dim=c(length(model_values), 2))
   for(k in 1:length(model_values)){
     cat("k=", k, "\n")
-    err_cv[k,] <- cv.function(feat_train, label_train, model_values[k], K)
+    err_cv[k,] <- cv.function(dat_train$feature, dat_train$label, model_values[k,], K)
   }
   save(err_cv, file="../output/err_cv.RData")
 }

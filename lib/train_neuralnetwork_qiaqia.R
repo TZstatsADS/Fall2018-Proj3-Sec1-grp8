@@ -1,12 +1,10 @@
-#install.packages("neuralnet")
+require(nnet)
+
 run.nnt=T
 
 ####  function:
-train_nn = function(feat_train, label_train){
+train_nnet = function(feat_train, label_train){
   
-  library("neuralnet")
-  
-  start <- Sys.time()
   modelList <- list()
   
   for (i in 1:12){
@@ -19,19 +17,17 @@ train_nn = function(feat_train, label_train){
     colnames(df1) <- paste0("feature", 1:8) 
     colnames(df2) <- paste0("label")
     dataset <- cbind(df1, df2)
-    model <- neuralnet(label~feature1+feature2 +feature3+feature4+feature5+feature6+feature7+feature8,data=dataset,hidden=1,linear.output = T)
+    model <- nnet(label~feature1+feature2 +feature3+feature4+feature5+feature6+feature7+feature8,data=dataset,size=2,linout = TRUE)
     modelList[[i]] <- list(fit=model)
   }
-  end <- Sys.time()
-  time <- end -start
-  return(list(modelList,time=time))
+  return(modelList)
 }
 
 ##### data & run function:
-feat_train <- dat_train$feature[1:100000,,]
-label_train <- dat_train$label[1:100000,,]
+#feat_train <- dat_train$feature[1:10000,,]
+#label_train <- dat_train$label[1:10000,,]
 
-if(run.nnt){
-  nnt_train <- train_nn(feat_train, label_train)
-  cat("Time for training neural network model=", nnt_train$time, "s \n")
-}
+#if(run.nnt){
+# nnet_train <- train_nnet(feat_train, label_train)
+#}
+#save(nnet_train, file="../output/nnt_train.RData")

@@ -226,6 +226,9 @@ if(run.cv){
   }
   save(err_cv, file="../output/err_cv.RData")
 }
+
+load(file="../output/err_cv.RData")
+
 ```
 
 Visualize cross-validation results. 
@@ -244,18 +247,18 @@ if(run.cv){
 
 * Choose the "best"" parameter value
 ```{r best_model}
-model_best=model_values[1]
+model_best=model_values[1,]
 if(run.cv){
-  model_best <- model_values[which.min(err_cv[,1])]
+  model_best <- model_values[which.min(err_cv[,1]),]
 }
 
-par_best <- list(depth=model_best)
+# par_best <- list(depth=model_best)
 ```
 
 * Train the model with the entire training set using the selected model (model parameter) via cross-validation.
 ```{r final_train}
 tm_train=NA
-tm_train <- system.time(fit_train <- train(feat_train, label_train, par_best))
+tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
 save(fit_train, file="../output/fit_train.RData")
 ```
 

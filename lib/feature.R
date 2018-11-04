@@ -5,7 +5,7 @@
 ### Authors: Chengliang Tang/Tian Zheng
 ### Project 3
 
-feature <- function(LR_dir, HR_dir, n_points=200){
+feature <- function(LR_dir, HR_dir, n_points=1000){
   
   ### Construct process features for training images (LR/HR pairs)
   
@@ -57,19 +57,23 @@ feature <- function(LR_dir, HR_dir, n_points=200){
   width <- dim(imgLR)[1]
   height <- dim(imgLR)[2]
   
-  # Lagrange transform
-  img_fhi = filter2(imgLR, fhi)
-  
-  selection <- array(order(img_fhi[,,1]) <= n_points, c(width, height))
-  selection <- which(selection, arr.ind = T)
-  x <- selection[,1]
-  y <- selection[,2]
+  # # Lagrange transform
+  # img_fhi = filter2(imgLR, fhi)
+  # # img_fhi <- channel(imgLR, mode = "gray")
+  # # img_fhi <- thresh(img_fhi, w = 30, h = 30, offset = 0.5 )
+  # 
+  # a <- abs(img_fhi[,,1]) + abs(img_fhi[,,2]) + abs(img_fhi[,,3])
+  # selection <- array(order(abs(img_fhi[,,1] - 2), decreasing = T) <= n_points, c(width, height))
+  # # selection <- array(order(img_fhi[,,1]) <= n_points, c(width, height))
+  # selection <- which(selection, arr.ind = T)
+  # x <- selection[,1]
+  # y <- selection[,2]
   
 
-  ### step 1. sample n_points from imgLR
-  # set.seed(100)
-  # x <- sample(1:width, n_points, replace = T)
-  # y <- sample(1:height, n_points, replace = T)
+  ## step 1. sample n_points from imgLR
+  set.seed(100)
+  x <- sample(1:width, n_points, replace = T)
+  y <- sample(1:height, n_points, replace = T)
   
   
   ### step 2. for each sampled point in imgLR,

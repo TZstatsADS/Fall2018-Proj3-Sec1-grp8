@@ -58,6 +58,8 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   ### read LR/HR image pairs
   for(i in 1:n_files){
     imgLR <- readImage(paste0(LR_dir,  "img", "_", sprintf("%04d", i), ".jpg"))
+    imgLR <- as.array(imgLR@.Data)
+    
     pathHR <- paste0(HR_dir,  "img", "_", sprintf("%04d", i), ".jpg")
     featMat <- array(NA, c(dim(imgLR)[1] * dim(imgLR)[2], 8, 3))
     rows=dim(imgLR)[1]
@@ -67,12 +69,12 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     ###           save (the neighbor 8 pixels - central pixel) in featMat
     ###           tips: padding zeros for boundary points
     for (d in 1:3) {
-      padded<- matrix(0,nrow = rows+2,ncol = cols+2)
-      padded[2:(rows+1),2:(cols+1)]<- imgLR@.Data[,,d]
-      count<- 0
+      padded <- matrix(0,nrow = rows+2,ncol = cols+2)
+      padded[2:(rows+1),2:(cols+1)] <- imgLR[,,d]
+      count <- 0
       for (i in 2:(rows+1)) {
         for (j in 2:(cols+1)) {
-          neighbor8<- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])-padded[i,j]
+          neighbor8 <- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])-padded[i,j]
           count<- count+1
           featMat[count,,d]<- neighbor8
         }
@@ -86,8 +88,8 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     
 
     ### step 3. recover high-resolution from predMat and save in HR_dir
-    predArray<- array(predMAT,c(rows*2,cols*2,3))
-    predicted_image<- Image(predArray,colormode = Color)
+    predArray <- array(predMAT,c(rows*2,cols*2,3))
+    predicted_image <- Image(predArray,colormode = Color)
     #writeImage(predicted_image,filepath)
     
   }

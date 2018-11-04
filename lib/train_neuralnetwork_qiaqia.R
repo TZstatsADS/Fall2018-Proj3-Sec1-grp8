@@ -1,10 +1,6 @@
-require(nnet)
-
-run.nnt=T
-
-####  function:
 train_nnet = function(feat_train, label_train){
   
+  require(nnet)
   modelList <- list()
   
   for (i in 1:12){
@@ -22,12 +18,3 @@ train_nnet = function(feat_train, label_train){
   }
   return(modelList)
 }
-
-##### data & run function:
-#feat_train <- dat_train$feature[1:10000,,]
-#label_train <- dat_train$label[1:10000,,]
-
-#if(run.nnt){
-# nnet_train <- train_nnet(feat_train, label_train)
-#}
-#save(nnet_train, file="../output/nnt_train.RData")

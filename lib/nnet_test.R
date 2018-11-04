@@ -11,7 +11,7 @@ nnet_test <- function(modelList, dat_test){
     featMat_dataframe <- data.frame(matrix(featMat,ncol=8))
     colnames(featMat_dataframe) <- paste0("feature", 1:8) 
     ### make predictions
-    predArr[, c1, c2] <- predict(modelList[[i]],featMat_dataframe,type = "raw")
+    predArr[, c1, c2] <- predict(modelList[[i]],featMat_dataframe,type = "raw")$fit
   }
   return(as.numeric(predArr))
 }

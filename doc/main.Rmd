@@ -108,23 +108,6 @@ label_train <- dat_train$label
 
 ```
 
-Train neural network
-```{r}
-#run.nnt =T
-#if(run.nnt){
-#  nnet_train <- train_nnet(feat_train, label_train)
-#}
-#save(nnet_train, file="../output/nnt_train.RData")
-```
-
-Test neural network
-```{r}
-#run.nnt.test=TRUE
-#if(run.nnt.test){
-#  nnet_test <- nnet_test(nnet_train, test_train)
-#}
-#save(nnet_test, file="../output/nnet_test.RData")
-```
 
 ### Step 4: Train a classification model with training images
 Call the train model and test model from library. 
@@ -140,6 +123,29 @@ Call the train model and test model from library.
 ```{r loadlib}
 source("../lib/train.R")
 source("../lib/test.R")
+source("../lib/nnet_test.R")
+source("../lib/train_neuralnetwork_qiaqia.R")
+```
+
+Train: Neural network
+```{r}
+#install.packages('caret', dependencies = TRUE)
+#library(caret)
+#run.nnt =T
+#if(run.nnt){
+#  nnet_train <- train_nnet(feat_train, label_train)
+#}
+#save(nnet_train, file="../output/nnt_train.RData")
+```
+
+Test: Neural Network 
+```{r}
+#test_train<-
+#run.nnt.test=TRUE
+#if(run.nnt.test){
+#nnet_test <- nnet_test(nnet_train, test_train)
+#}
+#save(nnet_test, file="../output/nnet_test.RData")
 ```
 
 

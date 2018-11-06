@@ -5,7 +5,7 @@
 ### Authors: Chengliang Tang/Tian Zheng
 ### Project 3
 
-feature <- function(LR_dir, HR_dir, n_points=1000){
+feature <- function(LR_dir, HR_dir, n_points=300){
   
   ### Construct process features for training images (LR/HR pairs)
   
@@ -57,24 +57,21 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
   width <- dim(imgLR)[1]
   height <- dim(imgLR)[2]
   
-  # # Lagrange transform
-  # img_fhi = filter2(imgLR, fhi)
-  # # img_fhi <- channel(imgLR, mode = "gray")
-  # # img_fhi <- thresh(img_fhi, w = 30, h = 30, offset = 0.5 )
-  # 
-  # a <- abs(img_fhi[,,1]) + abs(img_fhi[,,2]) + abs(img_fhi[,,3])
-  # selection <- array(order(abs(img_fhi[,,1] - 2), decreasing = T) <= n_points, c(width, height))
-  # # selection <- array(order(img_fhi[,,1]) <= n_points, c(width, height))
-  # selection <- which(selection, arr.ind = T)
-  # x <- selection[,1]
-  # y <- selection[,2]
-  
+  # Lagrange transform
+  img_fhi = filter2(imgLR, fhi)
+  img_fhi <- normalize(img_fhi)
 
-  ## step 1. sample n_points from imgLR
-  set.seed(100)
-  x <- sample(1:width, n_points, replace = T)
-  y <- sample(1:height, n_points, replace = T)
+  a <- (img_fhi[,,1] + img_fhi[,,2] + img_fhi[,,3])/3
+  x <- order(a, decreasing = T)[1:n_points] %% width
+  y <- order(a, decreasing = T)[1:n_points] %/% width + 1
   
+  # ## step 1. sample n_points from imgLR
+  # set.seed(100)
+  # x <- sample(1:width, n_points, replace = T)
+  # y <- sample(1:height, n_points, replace = T)
+  
+  padded <- array(0, c(width+2, height+2, 3))
+  padded[2:(width+1),2:(height+1),] <- imgLR
   
   ### step 2. for each sampled point in imgLR,
   
@@ -84,22 +81,18 @@ feature <- function(LR_dir, HR_dir, n_points=1000){
       ###           tips: padding zeros for boundary points
 
       # define square (don't allow for out of bound subscripts)
-      square <- imgLR[
-        (x[p] - 1):as.integer(((x[p] + 1) > width) * width 
-                              + ((x[p] + 1) <= width) * (x[p] + 1)), 
-        (y[p] - 1):as.integer(((y[p] + 1) > height) * height 
-                              + ((y[p] + 1) <= height) * (y[p] + 1)), ]
+      square <- padded[x[p]:(x[p] + 2), y[p]:(y[p] + 2), ]
       
-      
-      # padding zeros for boundary points
-      if(dim(square)[1] < 3){
-        square <- apply(square, c(2, 3), c, 0)
-      }
-      if(dim(square)[2] < 3){
-        # https://stackoverflow.com/questions/27637393/adding-column-or-row-in-3d-array
-        square <- aperm(apply(square, c(1, 3), c, 0), c(2, 1, 3))          
-      }
-      
+      # 
+      # # padding zeros for boundary points
+      # if(dim(square)[1] < 3){
+      #   square <- apply(square, c(2, 3), c, 0)
+      # }
+      # if(dim(square)[2] < 3){
+      #   # https://stackoverflow.com/questions/27637393/adding-column-or-row-in-3d-array
+      #   square <- aperm(apply(square, c(1, 3), c, 0), c(2, 1, 3))          
+      # }
+      # 
       vectorized <- c(square)
       centPixel <- vectorized[c(5, 14, 23)]
       vectorized <- vectorized - (!vectorized == 0) * c(rep(vectorized[5], 9),

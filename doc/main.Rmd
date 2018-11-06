@@ -93,13 +93,13 @@ extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
 
 ```{r feature}
 source("../lib/feature.R")
-# 
-# tm_feature_train <- NA
-# if(run.feature.train){
-#   tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
-#   feat_train <- dat_train$feature
-#   label_train <- dat_train$label
-# }
+
+tm_feature_train <- NA
+if(run.feature.train){
+  tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
+  feat_train <- dat_train$feature
+  label_train <- dat_train$label
+}
 
 # save(dat_train, file="../output/feature_train.RData")
 load(file="../output/feature_train.RData")
@@ -196,6 +196,7 @@ if(run.cv){
 tm_train=NA
 tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
 save(fit_train, file="../output/fit_train.RData")
+# load(file="../output/fit_train.RData")
 ```
 
 ### Step 5: Super-resolution for test images
@@ -211,12 +212,31 @@ test_dir <- "../data/test_set/" # This will be modified for different data sets.
 test_LR_dir <- paste(test_dir, "LR/", sep="")
 test_HR_dir <- paste(test_dir, "HR/", sep="")
 
+load(file="../output/fit_train.RData")
+
+profvis({
 tm_test=NA
 if(run.test){
-  load(file="../output/fit_train.RData")
   tm_test <- system.time(superResolution(test_LR_dir, test_HR_dir, fit_train))
 }
+})
 ```
+
+### Peak Signal-to-noise Ratio
+
+```{r}
+
+test_reconst_dir <- paste(test_dir, "HR/", sep="")
+test_original_dir <- paste(test_dir, "originals/", sep="")
+
+source("../lib/PSNR.R")
+sn <- psnr(test_reconst_dir, test_original_dir)
+plot(density(sn))
+
+```
+
+
+
 
 ### Summarize Running Time
 Prediction performance matters, so does the running times for constructing features and for training the model, especially when the computation resource is limited. 

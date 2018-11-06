@@ -37,7 +37,8 @@ set.seed(2018)
 
 Provide directories for training images. Low-resolution (LR) image set and High-resolution (HR) image set will be in different subfolders. 
 ```{r}
-train_dir <- "../data/train_set/" # This will be modified for different data sets.
+train_dir <- "C:/Users/asus/Documents/GitHub/Fall2018-Proj3-Sec1-grp8/data/train_set/" # This will be modified for different data sets.
+list.dirs(path = train_dir, full.names = TRUE, recursive = TRUE)
 train_LR_dir <- paste(train_dir, "LR/", sep="")
 train_HR_dir <- paste(train_dir, "HR/", sep="")
 train_label_path <- paste(train_dir, "label.csv", sep="") 
@@ -93,15 +94,15 @@ extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
 
 ```{r feature}
 source("../lib/feature.R")
-# 
-# tm_feature_train <- NA
-# if(run.feature.train){
-#   tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
-#   feat_train <- dat_train$feature
-#   label_train <- dat_train$label
-# }
+ 
+tm_feature_train <- NA
+if(run.feature.train){
+  tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
+  feat_train <- dat_train$feature
+  label_train <- dat_train$label
+}
 
-# save(dat_train, file="../output/feature_train.RData")
+save(dat_train, file="../output/feature_train.RData")
 load(file="../output/feature_train.RData")
 feat_train <- dat_train$feature
 label_train <- dat_train$label
@@ -127,25 +128,24 @@ source("../lib/nnet_test.R")
 source("../lib/train_neuralnetwork_qiaqia.R")
 ```
 
-Train: Neural network
+Neural network
 ```{r}
-#install.packages('caret', dependencies = TRUE)
-#library(caret)
-#run.nnt =T
-#if(run.nnt){
-#  nnet_train <- train_nnet(feat_train, label_train)
-#}
-#save(nnet_train, file="../output/nnt_train.RData")
-```
 
-Test: Neural Network 
-```{r}
-#test_train<-
-#run.nnt.test=TRUE
-#if(run.nnt.test){
-#nnet_test <- nnet_test(nnet_train, test_train)
-#}
-#save(nnet_test, file="../output/nnet_test.RData")
+model_values <- seq(1, 5, 1)
+
+#install.packages('caret', dependencies = TRUE)
+library(caret)
+
+source("../lib/cross_validation.R")
+
+if(run.cv){
+  err_cv <- array(dim=c(length(model_values), 2))
+  for(k in 1:length(model_values)){
+    cat("k=", k, "\n")
+    err_cv[k,] <- cv.nnet(dat_train$feature, dat_train$label, model_values[k], K)
+  }
+}
+save(err_cv, file="../output/err_cv_neuralnetwork.RData")
 ```
 
 
@@ -183,19 +183,26 @@ if(run.cv){
 
 * Choose the "best"" parameter value
 ```{r best_model}
-model_best=model_values[1,]
-if(run.cv){
-  model_best <- model_values[which.min(err_cv[,1]),]
-}
+#model_best=model_values[1,]
+#if(run.cv){
+#  model_best <- model_values[which.min(err_cv[,1]),]
+#}
 
+if(run.cv){
+  model_nnet_best <- model_values[which.min(err_cv[,1])]
+}
 # par_best <- list(depth=model_best)
 ```
 
 * Train the model with the entire training set using the selected model (model parameter) via cross-validation.
 ```{r final_train}
+#tm_train=NA
+#tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
+#save(fit_train, file="../output/fit_train.RData")
+
 tm_train=NA
-tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
-save(fit_train, file="../output/fit_train.RData")
+tm_train <- system.time(fit_train <- train_nnet(feat_train, label_train))
+save(fit_train, file="../output/fit_nnet_train.RData")
 ```
 
 ### Step 5: Super-resolution for test images

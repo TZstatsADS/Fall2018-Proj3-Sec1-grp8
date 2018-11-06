@@ -1,7 +1,13 @@
-train_nnet = function(feat_train, label_train){
+train_nnet = function(feat_train, label_train, par=NULL){
   
   require(nnet)
   modelList <- list()
+  
+  if(is.null(par)){
+    size <- 2
+  } else {
+    size <- par
+  }
   
   for (i in 1:12){
     c1 <- (i-1) %% 4 + 1
@@ -13,7 +19,7 @@ train_nnet = function(feat_train, label_train){
     colnames(df1) <- paste0("feature", 1:8) 
     colnames(df2) <- paste0("label")
     dataset <- cbind(df1, df2)
-    model <- nnet(label~feature1+feature2 +feature3+feature4+feature5+feature6+feature7+feature8,data=dataset,size=2,linout = TRUE)
+    model <- nnet(label~feature1+feature2 +feature3+feature4+feature5+feature6+feature7+feature8,data=dataset,size=size,linout = TRUE,trace=F)
     modelList[[i]] <- list(fit=model)
   }
   return(modelList)

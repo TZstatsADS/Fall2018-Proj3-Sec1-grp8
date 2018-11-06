@@ -48,74 +48,63 @@ feature <- function(LR_dir, HR_dir, n_points=300){
   # for(i in  (2 * n_files/3 + 1) : n_files){
   for(i in 1:n_files){  
   
-  imgLRObj <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
-  imgHRObj <- readImage(paste0(HR_dir,  "img_", sprintf("%04d", i), ".jpg"))
+    imgLRObj <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
+    imgHRObj <- readImage(paste0(HR_dir,  "img_", sprintf("%04d", i), ".jpg"))
+      
+    imgLR <- as.array(imgLRObj@.Data)
+    imgHR <- as.array(imgHRObj@.Data)
+  
+    width <- dim(imgLR)[1]
+    height <- dim(imgLR)[2]
     
-  imgLR <- as.array(imgLRObj@.Data)
-  imgHR <- as.array(imgHRObj@.Data)
-
-  width <- dim(imgLR)[1]
-  height <- dim(imgLR)[2]
+    # Lagrange transform
+    img_fhi = filter2(imgLR, fhi)
+    img_fhi <- normalize(img_fhi)
   
-  # Lagrange transform
-  img_fhi = filter2(imgLR, fhi)
-  img_fhi <- normalize(img_fhi)
-
-  a <- (img_fhi[,,1] + img_fhi[,,2] + img_fhi[,,3])/3
-  x <- order(a, decreasing = T)[1:n_points] %% width
-  y <- order(a, decreasing = T)[1:n_points] %/% width + 1
+    a <- (img_fhi[,,1] + img_fhi[,,2] + img_fhi[,,3])/3
+    x <- order(a, decreasing = T)[1:n_points] %% width
+    x[x==0] <- width # points on the right edge
+    y <- order(a, decreasing = T)[1:n_points] %/% width
+    y[y==0] <- 1 # points on the top edge
+    
+    # ## step 1. sample n_points from imgLR
+    # set.seed(100)
+    # x <- sample(1:width, n_points, replace = T)
+    # y <- sample(1:height, n_points, replace = T)
+    
+    padded <- array(0, c(width+2, height+2, 3))
+    padded[2:(width+1),2:(height+1),] <- imgLR
+    
+    ### step 2. for each sampled point in imgLR,
+    
+    for(p in 1:n_points){
+        ### step 2.1. save (the neighbor 8 pixels - central pixel) in featMat
+        ###           tips: padding zeros for boundary points
   
-  # ## step 1. sample n_points from imgLR
-  # set.seed(100)
-  # x <- sample(1:width, n_points, replace = T)
-  # y <- sample(1:height, n_points, replace = T)
-  
-  padded <- array(0, c(width+2, height+2, 3))
-  padded[2:(width+1),2:(height+1),] <- imgLR
-  
-  ### step 2. for each sampled point in imgLR,
-  
-  for(p in 1:n_points){
-  
-      ### step 2.1. save (the neighbor 8 pixels - central pixel) in featMat
-      ###           tips: padding zeros for boundary points
-
-      # define square (don't allow for out of bound subscripts)
-      square <- padded[x[p]:(x[p] + 2), y[p]:(y[p] + 2), ]
-      
-      # 
-      # # padding zeros for boundary points
-      # if(dim(square)[1] < 3){
-      #   square <- apply(square, c(2, 3), c, 0)
-      # }
-      # if(dim(square)[2] < 3){
-      #   # https://stackoverflow.com/questions/27637393/adding-column-or-row-in-3d-array
-      #   square <- aperm(apply(square, c(1, 3), c, 0), c(2, 1, 3))          
-      # }
-      # 
-      vectorized <- c(square)
-      centPixel <- vectorized[c(5, 14, 23)]
-      vectorized <- vectorized - (!vectorized == 0) * c(rep(vectorized[5], 9),
-                                                        rep(vectorized[14], 9),
-                                                        rep(vectorized[23], 9))
-      vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
-      
-      featMat[(i-1) * n_points + p,,] <- vectorized
-      # featMat[(i-1) * n_points + p,,] <- array(vectorized, c(8,3))
-  
-      ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
-  
-      square <- imgHR[(x[p] * 2 - 1):(x[p] * 2), 
-                            (y[p] * 2 - 1):(y[p] * 2), ]
-      labMat[(i-1) * n_points + p,,] <- c(square) - c(rep(centPixel[1], 4), 
-                                                      rep(centPixel[2], 4),
-                                                      rep(centPixel[3], 4))
-      # labMat[(i-1) * n_points + p,,] <- array(c(square), c(4,3))
-  }
-  imgLRObj <- NULL
-  imgHRObj <- NULL
+        square <- padded[x[p]:(x[p] + 2), y[p]:(y[p] + 2), ]
+        
+        vectorized <- c(square)
+        centPixel <- vectorized[c(5, 14, 23)]
+        vectorized <- vectorized - (!vectorized == 0) * c(rep(vectorized[5], 9),
+                                                          rep(vectorized[14], 9),
+                                                          rep(vectorized[23], 9))
+        vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
+        
+        featMat[(i-1) * n_points + p,,] <- vectorized
+        # featMat[(i-1) * n_points + p,,] <- array(vectorized, c(8,3))
+    
+        ### step 2.2. save the corresponding 4 sub-pixels of imgHR in labMat
+    
+        square <- imgHR[(x[p] * 2 - 1):(x[p] * 2), 
+                              (y[p] * 2 - 1):(y[p] * 2), ]
+        labMat[(i-1) * n_points + p,,] <- c(square) - c(rep(centPixel[1], 4), 
+                                                        rep(centPixel[2], 4),
+                                                        rep(centPixel[3], 4))
+        # labMat[(i-1) * n_points + p,,] <- array(c(square), c(4,3))
+    }
+    imgLRObj <- NULL
+    imgHRObj <- NULL
     print(i)
   }
-  # })
   return(list(feature = featMat, label = labMat))
 }

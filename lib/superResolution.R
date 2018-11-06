@@ -6,11 +6,11 @@
 ### Project 3
 
 ########### This part is only for testing ############
-#test_dir <- "../data/test_set/" 
-#test_LR_dir <- paste(test_dir, "LR/", sep="")
-#test_HR_dir <- paste(test_dir, "HR/", sep="")
-#LR_dir<- test_LR_dir
-#HR_dir<- test_HR_dir
+# test_dir <- "../data/test_set/"
+# test_LR_dir <- paste(test_dir, "LR/", sep="")
+# test_HR_dir <- paste(test_dir, "HR/", sep="")
+# LR_dir<- test_LR_dir
+# HR_dir<- test_HR_dir
 #load(file="../output/fit_train.RData")
 #load(file="../output/nnt_train.RData")
 #load(file="../output/xgb_train.RData")
@@ -70,28 +70,46 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     rows=dim(imgLR)[1]
     cols=dim(imgLR)[2]
     
+    profvis({
     ### step 1. for each pixel and each channel in imgLR:
     ###           save (the neighbor 8 pixels - central pixel) in featMat
     ###           tips: padding zeros for boundary points
-    for (d in 1:3) {
-      padded<- matrix(0,nrow = rows+2,ncol = cols+2)
-      padded[2:(rows+1),2:(cols+1)]<- imgLR[,,d]
-      count<- 0
-      for (k in 2:(rows+1)) {
-        for (j in 2:(cols+1)) {
-          neighbor8<- c(padded[k-1,j-1],padded[k,j-1],padded[k+1,j-1],padded[k-1,j],padded[k+1,j],padded[k-1,j+1],padded[k,j+1],padded[k+1,j+1])
-          - (c(padded[(k-1):(k+1),(j-1):(j+1)])[-5] !=0) * padded[k,j]
-
-          count <- count+1
-
-          featMat[count,,d]<- neighbor8
+    padded <- array(0, c(rows+2, cols+2, 3))
+    padded[2:(rows+1),2:(cols+1),] <- imgLR
+    count<- 0
+    for (x in 2:(rows+1)) {
+      for (y in 2:(cols+1)) {
+    # define square (don't allow for out of bound subscripts)
+        cube <- padded[(x - 1):(x + 1), (y - 1):(y + 1), ]
+        vectorized <- c(cube)
+        vectorized <- vectorized - c(rep(vectorized[5], 9),
+                                    rep(vectorized[14], 9),
+                                    rep(vectorized[23], 9)) # problem
+        vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
+        count <- count+1
+        featMat[count,,] <- vectorized
         }
       }
-    }
+      
+    #   for (d in 1:3) {
+    #   padded <- matrix(0, nrow = rows+2, ncol = cols+2)
+    #   padded[2:(rows+1),2:(cols+1)] <- imgLR[,,d]
+    #   v <- c(padded)
+    #   count<- 0
+    #   for (k in 2:(rows+1)) {
+    #     for (j in 2:(cols+1)) {
+    #       neighbor8 <- c(padded[(k-1):(k+1),(j-1):(j+1)])
+    #       neighbor8 <- neighbor8[-5] - (neighbor8[-5] != 0) * padded[k,j]
+    #       count <- count+1
+    # 
+    #       featMat[count,,d]<- neighbor8
+    #     }
+    #   }
+    # }
 
     ### step 2. apply the modelList over featMat
     predMAT <- test(modelList, featMat,test.gbm = T) # for baseline
-    #predMAT<- test(modelList,featMat,test.nnet =T)  # for neural network
+    # predMAT<- test(modelList,featMat,test.nnet =T)  # for neural network
     # predMAT<- test(modelList,featMat,test.xgboost = T)  # for xgboost
 
     
@@ -107,10 +125,10 @@ superResolution <- function(LR_dir, HR_dir, modelList){
       }
     }
     
-    predicted_image<- Image(predArray,colormode = Color)
+    predicted_image<- Image(predArray, colormode = Color)
     photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
     writeImage(predicted_image,photo_name)
-
+    })
     
   }
 }

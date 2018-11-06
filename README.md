@@ -7,11 +7,11 @@ Term: Fall 2018
 
 + Team #
 + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
+
+	+ Benedict, Gabriel gb2661@columbia.edu
+	+ Qiaqia Sun qs2184@columbia.edu
+	+ Zhangyang Xu zx2229@columbia.edu
+	+  Huiyu Zhang hz2497@columbia.edu 
 
 + Project summary: In this project, we created a classification engine for enhance the resolution of images. 
 	

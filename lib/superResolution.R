@@ -27,7 +27,7 @@
 #  count<- 0
 #  for (i in 2:(rows+1)) {
 #    for (j in 2:(cols+1)) {
-      #neighbor8<- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])-padded[i,j]
+#neighbor8<- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])-padded[i,j]
 #      neighbor8<- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])
 #                  - (c(padded[(i-1):(i+1),(j-1):(j+1)])[-5] !=0) * padded[i,j]
 #      count<- count+1
@@ -70,65 +70,67 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     rows=dim(imgLR)[1]
     cols=dim(imgLR)[2]
     
-    profvis({
-    ### step 1. for each pixel and each channel in imgLR:
-    ###           save (the neighbor 8 pixels - central pixel) in featMat
-    ###           tips: padding zeros for boundary points
-    padded <- array(0, c(rows+2, cols+2, 3))
-    padded[2:(rows+1),2:(cols+1),] <- imgLR
-    count<- 0
-    for (x in 2:(rows+1)) {
-      for (y in 2:(cols+1)) {
-    # define square (don't allow for out of bound subscripts)
-        cube <- padded[(x - 1):(x + 1), (y - 1):(y + 1), ]
-        vectorized <- c(cube)
-        vectorized <- vectorized - c(rep(vectorized[5], 9),
-                                    rep(vectorized[14], 9),
-                                    rep(vectorized[23], 9)) # problem
-        vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
-        count <- count+1
-        featMat[count,,] <- vectorized
+    #profvis({
+      ### step 1. for each pixel and each channel in imgLR:
+      ###           save (the neighbor 8 pixels - central pixel) in featMat
+      ###           tips: padding zeros for boundary points
+      padded <- array(0, c(rows+2, cols+2, 3))
+      padded[2:(rows+1),2:(cols+1),] <- imgLR
+      count<- 0
+      for (x in 2:(rows+1)) {
+        for (y in 2:(cols+1)) {
+          # define square (don't allow for out of bound subscripts)
+          cube <- padded[(x - 1):(x + 1), (y - 1):(y + 1), ]
+          vectorized <- c(cube)
+          vectorized <- vectorized - c(rep(vectorized[5], 9),
+                                       rep(vectorized[14], 9),
+                                       rep(vectorized[23], 9)) # problem
+          vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
+          count <- count+1
+          featMat[count,,] <- vectorized
         }
       }
       
-    #   for (d in 1:3) {
-    #   padded <- matrix(0, nrow = rows+2, ncol = cols+2)
-    #   padded[2:(rows+1),2:(cols+1)] <- imgLR[,,d]
-    #   v <- c(padded)
-    #   count<- 0
-    #   for (k in 2:(rows+1)) {
-    #     for (j in 2:(cols+1)) {
-    #       neighbor8 <- c(padded[(k-1):(k+1),(j-1):(j+1)])
-    #       neighbor8 <- neighbor8[-5] - (neighbor8[-5] != 0) * padded[k,j]
-    #       count <- count+1
-    # 
-    #       featMat[count,,d]<- neighbor8
-    #     }
-    #   }
-    # }
-
-    ### step 2. apply the modelList over featMat
-    predMAT <- test(modelList, featMat,test.gbm = T) # for baseline
-    # predMAT<- test(modelList,featMat,test.nnet =T)  # for neural network
-    # predMAT<- test(modelList,featMat,test.xgboost = T)  # for xgboost
-
-    
-
-    ### step 3. recover high-resolution from predMat and save in HR_dir
-    predArray<- array(predMAT,c(rows*2,cols*2,3))
-    for(i in 1:rows){
-      for(j in 1:cols){
-        predArray[i*2-1, j*2-1,] <- predArray[i*2-1, j*2-1,] + imgLR[i,j,]
-        predArray[i*2, j*2-1,] <- predArray[i*2, j*2-1,] + imgLR[i,j,]
-        predArray[i*2-1, j*2,] <- predArray[i*2-1, j*2,] + imgLR[i,j,]
-        predArray[i*2, j*2,] <- predArray[i*2, j*2,] + imgLR[i,j,]
+      #   for (d in 1:3) {
+      #   padded <- matrix(0, nrow = rows+2, ncol = cols+2)
+      #   padded[2:(rows+1),2:(cols+1)] <- imgLR[,,d]
+      #   v <- c(padded)
+      #   count<- 0
+      #   for (k in 2:(rows+1)) {
+      #     for (j in 2:(cols+1)) {
+      #       neighbor8 <- c(padded[(k-1):(k+1),(j-1):(j+1)])
+      #       neighbor8 <- neighbor8[-5] - (neighbor8[-5] != 0) * padded[k,j]
+      #       count <- count+1
+      # 
+      #       featMat[count,,d]<- neighbor8
+      #     }
+      #   }
+      # }
+      
+      ### step 2. apply the modelList over featMat
+      predMAT <- test(modelList, featMat,test.gbm = T) # for baseline
+      # predMAT<- test(modelList,featMat,test.nnet =T)  # for neural network
+      # predMAT<- test(modelList,featMat,test.xgboost = T)  # for xgboost
+      
+      
+      
+      ### step 3. recover high-resolution from predMat and save in HR_dir
+      predArray<- array(predMAT,c(rows*2,cols*2,3))
+      for(m in 1:rows){
+        for(n in 1:cols){
+          predArray[m*2-1, n*2-1,] <- predArray[m*2-1, n*2-1,] + imgLR[m,n,]
+          predArray[m*2, n*2-1,] <- predArray[m*2, n*2-1,] + imgLR[m,n,]
+          predArray[m*2-1, n*2,] <- predArray[m*2-1, n*2,] + imgLR[m,n,]
+          predArray[m*2, n*2,] <- predArray[m*2, n*2,] + imgLR[m,n,]
+        }
       }
-    }
-    
-    predicted_image<- Image(predArray, colormode = Color)
-    photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
-    writeImage(predicted_image,photo_name)
-    })
+      
+      predicted_image<- Image(predArray, colormode = Color)
+      photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
+      writeImage(predicted_image,photo_name)
+    #})
     
   }
 }
+
+

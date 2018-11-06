@@ -93,13 +93,13 @@ extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
 
 ```{r feature}
 source("../lib/feature.R")
-# 
-# tm_feature_train <- NA
-# if(run.feature.train){
-#   tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
-#   feat_train <- dat_train$feature
-#   label_train <- dat_train$label
-# }
+
+tm_feature_train <- NA
+if(run.feature.train){
+  tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
+  feat_train <- dat_train$feature
+  label_train <- dat_train$label
+}
 
 # save(dat_train, file="../output/feature_train.RData")
 load(file="../output/feature_train.RData")

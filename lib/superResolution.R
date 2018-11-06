@@ -59,8 +59,8 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   library(raster)
   
   n_files <- length(list.files(LR_dir))
-  n_files<- 5
-
+  n_files <- 5
+  profvis({
   ### read LR/HR image pairs
   for(i in 1:n_files){
     imgLR <- readImage(paste0(LR_dir,  "img", "_", sprintf("%04d", i), ".jpg"))
@@ -70,21 +70,34 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     rows=dim(imgLR)[1]
     cols=dim(imgLR)[2]
     
-    profvis({
     ### step 1. for each pixel and each channel in imgLR:
     ###           save (the neighbor 8 pixels - central pixel) in featMat
     ###           tips: padding zeros for boundary points
     padded <- array(0, c(rows+2, cols+2, 3))
     padded[2:(rows+1),2:(cols+1),] <- imgLR
     count<- 0
+    # 
+    # b <- c(padded)
+    # b <- array(b, c(length(b)/3, 3))
+    # for(i in (cols+2):(length(b)/3-cols-2)){
+    #   neighbours <- b[c((i-cols-1):(i-cols+1), (i-1):(i+1), (i+cols-1):(i+cols+1)),]
+    #   neighbours <- neighbours - neighbours[c(rep(5, 9),
+    #                                           rep(14, 9),
+    #                                           rep(23, 9))] # problem
+    #   neighbours <- neighbours[c(-5, -14, -23)] # no central pixel
+    #   count <- count+1
+    #   featMat[count,,] <- neighbours
+    #   print(i)
+    # }
+    
     for (x in 2:(rows+1)) {
       for (y in 2:(cols+1)) {
     # define square (don't allow for out of bound subscripts)
         cube <- padded[(x - 1):(x + 1), (y - 1):(y + 1), ]
         vectorized <- c(cube)
-        vectorized <- vectorized - c(rep(vectorized[5], 9),
-                                    rep(vectorized[14], 9),
-                                    rep(vectorized[23], 9)) # problem
+        vectorized <- vectorized - vectorized[c(rep(5, 9),
+                                    rep(14, 9),
+                                    rep(23, 9))] # problem
         vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
         count <- count+1
         featMat[count,,] <- vectorized
@@ -116,19 +129,16 @@ superResolution <- function(LR_dir, HR_dir, modelList){
 
     ### step 3. recover high-resolution from predMat and save in HR_dir
     predArray<- array(predMAT,c(rows*2,cols*2,3))
-    for(i in 1:rows){
-      for(j in 1:cols){
-        predArray[i*2-1, j*2-1,] <- predArray[i*2-1, j*2-1,] + imgLR[i,j,]
-        predArray[i*2, j*2-1,] <- predArray[i*2, j*2-1,] + imgLR[i,j,]
-        predArray[i*2-1, j*2,] <- predArray[i*2-1, j*2,] + imgLR[i,j,]
-        predArray[i*2, j*2,] <- predArray[i*2, j*2,] + imgLR[i,j,]
-      }
-    }
     
+    a <- imgLR[rep(1:nrow(imgLR), times = rep(2, nrow(imgLR))), rep(1:ncol(imgLR), times = rep(2, ncol(imgLR))),]
+    predArray <- predArray + a
+    
+
     predicted_image<- Image(predArray, colormode = Color)
     photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
     writeImage(predicted_image,photo_name)
-    })
+    
     
   }
+  })
 }

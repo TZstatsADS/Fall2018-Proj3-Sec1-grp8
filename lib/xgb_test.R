@@ -5,7 +5,9 @@
 ### Author: Chengliang Tang
 ### Project 3
 
-test <- function(modelList, dat_test, test.gbm=F, test.rf=F, test.nnet=F,test.xgboost=F){
+
+
+test.xgb <- function(modelList, dat_test){
   
   ### Fit the classfication model with testing data
   
@@ -15,7 +17,6 @@ test <- function(modelList, dat_test, test.gbm=F, test.rf=F, test.nnet=F,test.xg
   ### Output: training model specification
   
   ### load libraries
-  library("gbm")
   library("xgboost")
   
   predArr <- array(NA, c(dim(dat_test)[1], 4, 3))
@@ -27,22 +28,14 @@ test <- function(modelList, dat_test, test.gbm=F, test.rf=F, test.nnet=F,test.xg
     c2 <- (i-c1) %/% 4 + 1
     featMat <- dat_test[, , c2]
     ### make predictions
-    if(test.gbm){
-      predArr[, c1, c2] <- predict(fit_train$fit, newdata=featMat, 
-                      n.trees=fit_train$iter, type="response")
-    }
-    if(test.rf){
-      predArr[, c1, c2]<- predict(fit_train$fit, newdata=featMat, type="response")
-    }
-    if(test.nnet){
-      featMat_dataframe<- data.frame(matrix(featMat,ncol = 8))
-      colnames(featMat_dataframe)<- paste0("feature",1:8)
-      predArr[,c1,c2]<- predict(modelList[[i]],featMat_dataframe,type="raw")$fit
-    }
-    if(test.xgboost){
-      predArr[, c1, c2] <- predict(fit_train, newdata=featMat)
-    }
+    predArr[, c1, c2] <- predict(fit_train, newdata=featMat)
   }
   return(as.numeric(predArr))
 }
 
+xgb.test.begin = Sys.time()
+
+xgb.test.end = Sys.time()
+xgb.test.time = xgb.test.end - xgb.test.begin
+
+xgb.test.time

@@ -5,6 +5,46 @@
 ### Author: Chengliang Tang
 ### Project 3
 
+########### This part is only for testing ############
+#test_dir <- "../data/test_set/" 
+#test_LR_dir <- paste(test_dir, "LR/", sep="")
+#test_HR_dir <- paste(test_dir, "HR/", sep="")
+#LR_dir<- test_LR_dir
+#HR_dir<- test_HR_dir
+#load(file="../output/fit_train.RData")
+#load(file="../output/nnt_train.RData")
+#load(file="../output/xgb_train.RData")
+#imgLR<- readImage(paste0(LR_dir,"img","_",sprintf("%04d",0101),".jpg"))
+#pathHR <- paste0(HR_dir,  "img", "_", sprintf("%04d", 0101), ".jpg")
+#imgHR<- readImage(pathHR)
+#featMat<- array(NA,c(dim(imgLR)[1]*dim(imgLR)[2],8,3))  #328*171=56088
+#rows=dim(imgLR)[1]
+#cols=dim(imgLR)[2]
+
+#for (d in 1:3) {
+#  padded<- matrix(0,nrow = rows+2,ncol = cols+2)
+#  padded[2:(rows+1),2:(cols+1)]<- imgLR@.Data[,,d]
+#  count<- 0
+#  for (i in 2:(rows+1)) {
+#    for (j in 2:(cols+1)) {
+      #neighbor8<- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])-padded[i,j]
+#      neighbor8<- c(padded[i-1,j-1],padded[i,j-1],padded[i+1,j-1],padded[i-1,j],padded[i+1,j],padded[i-1,j+1],padded[i,j+1],padded[i+1,j+1])
+#                  - (c(padded[(i-1):(i+1),(j-1):(j+1)])[-5] !=0) * padded[i,j]
+#      count<- count+1
+#      featMat[count,,d]<- neighbor8
+#    }
+#  }
+#}
+#predMAT<- test(fit_train,featMat,test.gbm =T)
+#predMAT<- test(nnet_train,featMat,test.nnet = T)
+#predArray<- array(predMAT,c(rows*2,cols*2,3))
+#testt<- Image(predArray,colormode = Color)
+#plot(testt)
+#i<- 289
+#photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
+#writeImage(testt,photo_name)
+#########################################################
+
 superResolution <- function(LR_dir, HR_dir, modelList){
   
   ### Construct high-resolution images from low-resolution images with trained predictor
@@ -14,22 +54,63 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   
   ### load libraries
   library("EBImage")
-  n_files <- length(list.files(LR_dir))
+  library(magrittr)
+  library(grid)
+  library(raster)
   
+  n_files <- length(list.files(LR_dir))
+  n_files<- 5
+
   ### read LR/HR image pairs
   for(i in 1:n_files){
     imgLR <- readImage(paste0(LR_dir,  "img", "_", sprintf("%04d", i), ".jpg"))
+    imgLR <- as.array(imgLR@.Data)
     pathHR <- paste0(HR_dir,  "img", "_", sprintf("%04d", i), ".jpg")
     featMat <- array(NA, c(dim(imgLR)[1] * dim(imgLR)[2], 8, 3))
+    rows=dim(imgLR)[1]
+    cols=dim(imgLR)[2]
     
     ### step 1. for each pixel and each channel in imgLR:
     ###           save (the neighbor 8 pixels - central pixel) in featMat
     ###           tips: padding zeros for boundary points
-    
+    for (d in 1:3) {
+      padded<- matrix(0,nrow = rows+2,ncol = cols+2)
+      padded[2:(rows+1),2:(cols+1)]<- imgLR[,,d]
+      count<- 0
+      for (k in 2:(rows+1)) {
+        for (j in 2:(cols+1)) {
+          neighbor8<- c(padded[k-1,j-1],padded[k,j-1],padded[k+1,j-1],padded[k-1,j],padded[k+1,j],padded[k-1,j+1],padded[k,j+1],padded[k+1,j+1])
+          - (c(padded[(k-1):(k+1),(j-1):(j+1)])[-5] !=0) * padded[k,j]
+
+          count <- count+1
+
+          featMat[count,,d]<- neighbor8
+        }
+      }
+    }
+
     ### step 2. apply the modelList over featMat
-    predMat <- test(modelList, featMat)
-    ### step 3. recover high-resolution from predMat and save in HR_dir
+    predMAT <- test(modelList, featMat,test.gbm = T) # for baseline
+    #predMAT<- test(modelList,featMat,test.nnet =T)  # for neural network
+    # predMAT<- test(modelList,featMat,test.xgboost = T)  # for xgboost
+
     
+
+    ### step 3. recover high-resolution from predMat and save in HR_dir
+    predArray<- array(predMAT,c(rows*2,cols*2,3))
+    for(i in 1:rows){
+      for(j in 1:cols){
+        predArray[i*2-1, j*2-1,] <- predArray[i*2-1, j*2-1,] + imgLR[i,j,]
+        predArray[i*2, j*2-1,] <- predArray[i*2, j*2-1,] + imgLR[i,j,]
+        predArray[i*2-1, j*2,] <- predArray[i*2-1, j*2,] + imgLR[i,j,]
+        predArray[i*2, j*2,] <- predArray[i*2, j*2,] + imgLR[i,j,]
+      }
+    }
+    
+    predicted_image<- Image(predArray,colormode = Color)
+    photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
+    writeImage(predicted_image,photo_name)
+
     
   }
 }

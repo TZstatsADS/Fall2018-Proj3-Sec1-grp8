@@ -5,7 +5,7 @@
 
 Term: Fall 2018
 
-+ Team #
++ Team Group 8
 + Team members
 
 	+ Benedict, Gabriel gb2661@columbia.edu

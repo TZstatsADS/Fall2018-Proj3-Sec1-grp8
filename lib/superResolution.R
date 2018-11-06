@@ -58,9 +58,9 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   library(grid)
   library(raster)
   
-  profvis({
+  # profvis({
   n_files <- length(list.files(LR_dir))
-  n_files <- 5
+  # n_files <- 5
   ### read LR/HR image pairs
   for(i in 1:n_files){
     imgLR <- readImage(paste0(LR_dir,  "img", "_", sprintf("%04d", i), ".jpg"))
@@ -135,10 +135,10 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     
 
     predicted_image<- Image(predArray, colormode = Color)
-    photo_name<- paste0("img","_",sprintf("%04d",i),".jpg")
+    photo_name<- paste0(HR_dir,"img","_",sprintf("%04d",i),".jpg")
     writeImage(predicted_image,photo_name)
     
     
   }
-  })
+  # })
 }

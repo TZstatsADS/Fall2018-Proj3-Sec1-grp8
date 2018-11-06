@@ -19,7 +19,8 @@ Term: Fall 2018
 Then after building models using training data, through cross validation for each model (metioned above), we got the best parameters for each model according to the cross validation error, then implemented each model with their best parameters on testing pictures.
 Finally, according to the PSNR value of each model, we found the best model in super resolution problem is    .
 	
-**Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. For the specific assignments:
+**Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
+For the specific assignments:
 + Benedict, Gabriel: Finished the feature selection part and baseline model's implementation.
 + Qiaqia, Sun: Finished the Neural Network model's implementation and presented group's result.
 + Zhangyang, Xu: Finished the Xgboost model's implementation and the readme file.

@@ -108,7 +108,7 @@ extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
   + Output: an RData file that contains extracted features and corresponding responses
 
 ```{r feature}
-source("./lib/xgb_feature.R")
+source("./lib/xgboost/feature.R")
 
 begin = Sys.time()
 tm_feature_train <- NA
@@ -119,7 +119,7 @@ if(run.feature.train){
 label_train <- dat_train$label
 }
 
-save(dat_train, file="./output/feature_train.RData")
+save(dat_train, file="./output/feature_train_xgb.RData")
 
 feat_train <- dat_train$feature
 
@@ -128,7 +128,7 @@ end =Sys.time()
 
 feature_train_time = end-begin
 
-load(file="./output/feature_train.RData")
+load(file="./output/feature_train_xgb.RData")
 
 tm_feature_test <- NA
  if(run.feature.test){
@@ -136,8 +136,8 @@ tm_feature_test <- NA
   feat_test <- dat_test$feature
   label_test <- dat_test$label
  }
-save(dat_test, file="./output/feature_test.RData")
-load(file="./output/feature_test.RData")
+save(dat_test, file="./output/feature_test_xgb.RData")
+load(file="./output/feature_test_xgb.RData")
 
 feat_test <- dat_test$feature
 label_test <- dat_test$label
@@ -158,8 +158,8 @@ Call the train model and test model from library.
   + Input: an R object that contains a trained classifier.
   + Output: an R object of response predictions on the test set. If there are multiple classifiers under evaluation, there should be multiple sets of label predictions. 
 ```{r loadlib}
-source("../lib/xgb_train.R")
-source("../lib/xgb_test.R")
+source("./lib/xgboost/xgb_train.R")
+source("./lib/xgboost/xgb_test.R")
 ```
 
 
@@ -172,30 +172,30 @@ source("../lib/xgb_test.R")
 ############# xgboost#############################
 
 ```{r runcv, message=FALSE, warning=FALSE}
-source("./lib/xgb_cross_validation.R")
+source("./lib/xgboost/xgb_cross_validation.R")
 
 
-library("parallel")
-library("parallelMap") 
-parallelStartSocket(cpus = detectCores())
-
-
-xgb.ms.begin = Sys.time()
-
-if(run.cv){
-  err_cv <- array(dim=c(nrow(model_values), 2))
-  for(k in 1:nrow(model_values)){
-    cat("k=", k, "\n")
-    err_cv[k,] <- cv.function(dat_train$feature, dat_train$label, model_values[k,], K)
-  }
-  save(err_cv, file="./output/xgb_train_err_cv.RData")
-}
-
-xgb.ms.end = Sys.time()
-
-xgb.ms.time = xgb.ms.end - xgb.ms.begin
-
-xgb.ms.time
+# library("parallel")
+# library("parallelMap") 
+# parallelStartSocket(cpus = detectCores())
+# 
+# 
+# xgb.ms.begin = Sys.time()
+# 
+# if(run.cv){
+#   err_cv <- array(dim=c(nrow(model_values), 2))
+#   for(k in 1:nrow(model_values)){
+#     cat("k=", k, "\n")
+#     err_cv[k,] <- cv.function(dat_train$feature, dat_train$label, model_values[k,], K)
+#   }
+#   save(err_cv, file="./output/xgb_train_err_cv.RData")
+# }
+# 
+# xgb.ms.end = Sys.time()
+# 
+# xgb.ms.time = xgb.ms.end - xgb.ms.begin
+# 
+# xgb.ms.time
 
 load(file="./output/xgb_train_err_cv.RData")
 
@@ -203,15 +203,15 @@ load(file="./output/xgb_train_err_cv.RData")
 
 Visualize cross-validation results. 
 ```{r cv_vis}
-if(run.cv){
-  load("../output/err_cv.RData")
-  plot(model_values, err_cv[,1], xlab="Interaction Depth", ylab="CV Error",
-       main="Cross Validation Error", type="n", ylim=c(0, 0.25))
-  points(model_values, err_cv[,1], col="blue", pch=16)
-  lines(model_values, err_cv[,1], col="blue")
-  arrows(model_values, err_cv[,1]-err_cv[,2], model_values, err_cv[,1]+err_cv[,2], 
-        length=0.1, angle=90, code=3)
-}
+# if(run.cv){
+#   load("../output/err_cv.RData")
+#   plot(model_values, err_cv[,1], xlab="Interaction Depth", ylab="CV Error",
+#        main="Cross Validation Error", type="n", ylim=c(0, 0.25))
+#   points(model_values, err_cv[,1], col="blue", pch=16)
+#   lines(model_values, err_cv[,1], col="blue")
+#   arrows(model_values, err_cv[,1]-err_cv[,2], model_values, err_cv[,1]+err_cv[,2], 
+#         length=0.1, angle=90, code=3)
+# }
 ```
 
 
@@ -227,9 +227,9 @@ if(run.cv){
 
 * Train the model with the entire training set using the selected model (model parameter) via cross-validation.
 ```{r final_train}
-tm_train=NA
-tm_train <- system.time(fit_train <- train.xgb(feat_train, label_train, model_best))
-save(fit_train, file="./output/fit_train_xgb.RData")
+# tm_train=NA
+# tm_train <- system.time(fit_train <- train.xgb(feat_train, label_train, model_best))
+# save(fit_train, file="./output/fit_train_xgb.RData")
 ```
 
 ### Step 5: Super-resolution for test images
@@ -240,16 +240,16 @@ Feed the final training model with the completely holdout testing data.
   + Input: an R object that contains tuned predictors.
   + Output: construct high-resolution versions for each low-resolution test image.
 ```{r superresolution}
-source("../lib/xgb_superResolution.R")
-test_dir <- "../data/test_set/" # This will be modified for different data sets.
+source("./lib/xgboost/xgb_superResolution.R")
+test_dir <- "./data/test_set/" # This will be modified for different data sets.
 test_LR_dir <- paste(test_dir, "LR/", sep="")
 test_HR_dir <- paste(test_dir, "HR/", sep="")
 predict_HR_dir = paste(test_dir, "predict/", sep="")
 
 tm_test=NA
 if(run.test){
-  load(file="../output/fit_train_xgb.RData")
-  tm_test <- system.time(superResolution(test_LR_dir, predict_HR_dir, fit_train))
+  load(file="./output/fit_train_xgb.RData")
+  tm_test <- system.time(superResolution(test_LR_dir, predict_HR_dir, fit_train_xgb))
 }
 ```
 
@@ -271,7 +271,7 @@ if(run.test){
 test_reconst_dir <- predict_HR_dir
 test_original_dir <- test_HR_dir
 
-source("../lib/PSNR.R")
+source("./lib/xgboost/PSNR.R")
 sn <- psnr(test_reconst_dir, test_original_dir)
 mean(sn)
 plot(density(sn))

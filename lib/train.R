@@ -30,8 +30,8 @@ train <- function(feat_train, label_train, par=NULL){
   } else {
     depth <- par$depth
     trees <- par$trees
-    bags <- 0.5
-    shrink <- par$shrink
+    bags <- par$bags
+    shrink <- 0.1
   }
   
   ## changing the number of trees from 200 to 50 brought a negligeable increase of rmse from

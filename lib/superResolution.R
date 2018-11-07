@@ -62,7 +62,7 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   
   # profvis({
   n_files <- length(list.files(LR_dir))
-  #n_files <- 5
+  # n_files <- 5
   ### read LR/HR image pairs
   for(i in 1:n_files){
     imgLR <- readImage(paste0(LR_dir,  "img", "_", sprintf("%04d", i), ".jpg"))

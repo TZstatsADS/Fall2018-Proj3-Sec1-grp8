@@ -67,12 +67,13 @@ run.feature.test=TRUE # process features for test set
 Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this example, we use GBM with different `depth`. In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare. In your project, you might compare very different classifiers. You can assign them numerical IDs and labels specific to your project. 
 
 ```{r model_setup}
-depths <- 3:4
-trees <- c(150, 200, 300)
-shrink <- c(0.1, 0.01)
+depths <- 2:3
+trees <- c(10,20)
+bags <- seq(0.3, 0.7, 0.1)
 
 # all combinations
-model_values <- expand.grid(depths = depths, trees = trees, shrink = shrink)
+model_values <- expand.grid(depths = depths, trees = trees, bags = bags)
+
 
 # model_labels = paste("GBM with depth =", model_values)
 
@@ -185,10 +186,10 @@ if(run.cv){
 
 * Choose the "best"" parameter value
 ```{r best_model}
-#model_best=model_values[1,]
-#if(run.cv){
-#  model_best <- model_values[which.min(err_cv[,1]),]
-#}
+model_best=model_values[1,]
+if(run.cv){
+ model_best <- model_values[which.min(err_cv[,1]),]
+}
 
 if(run.cv){
   model_nnet_best <- model_values[which.min(err_cv[,1])]
@@ -201,6 +202,10 @@ if(run.cv){
 #tm_train=NA
 #tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
 #save(fit_train, file="../output/fit_train.RData")
+
+# final model
+model_best <- 
+
 
 tm_train=NA
 tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))

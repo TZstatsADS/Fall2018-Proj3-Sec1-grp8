@@ -96,7 +96,6 @@ save(dat_train, file="../output/feature_train.RData")
 load(file="../output/feature_train.RData")
 feat_train <- dat_train$feature
 label_train <- dat_train$label
-
 ```
 
 
@@ -113,9 +112,9 @@ Call the train model and test model from library.
   + Output: an R object of response predictions on the test set. If there are multiple classifiers under evaluation, there should be multiple sets of label predictions. 
 ```{r loadlib}
 source("../lib/train.R")
-source("../lib/test.R")
-source("../lib/nnet_test.R")
-source("../lib/train_neuralnetwork_qiaqia.R")
+source("../lib/nnet/test.R")
+source("../lib/nnet/nnet_test.R")
+source("../lib/nnet/train_neuralnetwork_qiaqia.R")
 ```
 
 Neural network
@@ -172,7 +171,7 @@ if(run.cv){
 #save(fit_train, file="../output/fit_train.RData")
 
 tm_train=NA
-tm_train <- system.time(fit_train <- train_nnet(feat_train, label_train,model_nnet_best))
+tm_train <- system.time(fit_train <- train_nnet(feat_train, label_train,5))
 save(fit_train, file="../output/fit_nnet_train.RData")
 ```
 
@@ -184,7 +183,7 @@ Feed the final training model with the completely holdout testing data.
   + Input: an R object that contains tuned predictors.
   + Output: construct high-resolution versions for each low-resolution test image.
 ```{r superresolution}
-source("../lib/superResolution.R")
+source("../lib/nnet/superResolution.R")
 test_dir <- "C:/Users/asus/Documents/GitHub/Fall2018-Proj3-Sec1-grp8/data/test_set/" # This will be modified for different data sets.
 test_LR_dir <- paste(test_dir, "LR/", sep="")
 test_HR_dir <- paste(test_dir, "HR/", sep="")
@@ -197,11 +196,29 @@ if(run.test){
 ```
 
 ```{r}
-source("../lib/PSNR.R")
-test_original_dir <- paste(test_dir, "original/", sep="")
-psnr <- psnr(test_HR_dir, test_original_dir)
-plot(density(psnr))
-mean(psnr)
+#source("../lib/PSNR.R")
+#test_original_dir <- paste(test_dir, "original/", sep="")
+#psnr <- psnr(test_HR_dir, test_original_dir)
+#plot(density(psnr))
+#save(psnr, file="../output/psnr_nnet.RData")
+```
+
+```{r}
+load(file="../output/xgb_psnr.RData")
+load(file="../output/psnr_nnet.RData")
+load(file="../output/psnrGBM.RData")
+#snGBM <- sn
+#save(snGBM, file="../output/psnrGBM.RData")
+
+
+#df <- data.frame(NeuralNetwork=psnr,XGBoost=sn,GBM=snGBM)
+#data <- melt(df)
+#ggplot(data,aes(x=value, fill=variable)) + geom_density(alpha=0.2)
+
+#install.packages("ggplot2",dependencies = T)
+#library(ggplot2)
+#install.packages("reshape")
+#library(reshape)
 ```
 
 ### Summarize Running Time

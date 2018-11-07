@@ -66,7 +66,7 @@ run.test=TRUE # run evaluation on an independent test set
 run.feature.test=TRUE # process features for test set
 ```
 
-Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this example, we use GBM with different `depth`. In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare. In your project, you might compare very different classifiers. You can assign them numerical IDs and labels specific to your project. 
+Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this example, we use xgboost with different regulaziration parameters. In the following chunk, we list, in a vector, setups (in this case, `alpha`,`gamma`) corresponding to models that we will compare. 
 
 ```{r model_setup}
 ### xgboost############
@@ -149,7 +149,7 @@ label_test <- dat_test$label
 ### Step 4: Train a classification model with training images
 Call the train model and test model from library. 
 
-`train.R` and `test.R` should be wrappers for all your model training steps and your classification/prediction steps. 
+`xgb_train.R` and `xgb_test.R` should be wrappers for all your model training steps and your classification/prediction steps. 
 + `train.R`
   + Input: a path that points to the training set features and responses.
   + Output: an RData file that contains trained classifiers in the forms of R objects: models/settings/links to external trained configurations.

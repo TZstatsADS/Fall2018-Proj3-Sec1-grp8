@@ -26,10 +26,12 @@ train <- function(feat_train, label_train, par=NULL){
     depth <- 3
     trees <- 10
     bags <- 0.5
+    shrink <- 0.1
   } else {
     depth <- par$depth
     trees <- par$trees
-    bags <- par$bags
+    bags <- 0.5
+    shrink <- par$shrink
   }
   
   ## changing the number of trees from 200 to 50 brought a negligeable increase of rmse from
@@ -54,7 +56,8 @@ train <- function(feat_train, label_train, par=NULL){
                          distribution="gaussian",
                          interaction.depth=depth, 
                          bag.fraction = bags,
-                         verbose=FALSE)
+                         verbose=FALSE,
+                         shrinkage = shrink)
     best_iter <- gbm.perf(fit_gbm, method="OOB", plot.it = FALSE)
     modelList[[i]] <- list(fit=fit_gbm, iter=best_iter)
   }

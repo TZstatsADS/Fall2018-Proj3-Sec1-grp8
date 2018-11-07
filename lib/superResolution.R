@@ -58,6 +58,8 @@ superResolution <- function(LR_dir, HR_dir, modelList){
   library(grid)
   library(raster)
   
+  ## which modelling is used
+  
   # profvis({
   n_files <- length(list.files(LR_dir))
   # n_files <- 5
@@ -97,30 +99,15 @@ superResolution <- function(LR_dir, HR_dir, modelList){
         vectorized <- c(cube)
         vectorized <- vectorized - vectorized[c(rep(5, 9),
                                     rep(14, 9),
-                                    rep(23, 9))] # problem
+                                    rep(23, 9))]
         vectorized <- vectorized[c(-5, -14, -23)] # no central pixel
         count <- count+1
         featMat[count,,] <- vectorized
         }
       }
       
-    #   for (d in 1:3) {
-    #   padded <- matrix(0, nrow = rows+2, ncol = cols+2)
-    #   padded[2:(rows+1),2:(cols+1)] <- imgLR[,,d]
-    #   v <- c(padded)
-    #   count<- 0
-    #   for (k in 2:(rows+1)) {
-    #     for (j in 2:(cols+1)) {
-    #       neighbor8 <- c(padded[(k-1):(k+1),(j-1):(j+1)])
-    #       neighbor8 <- neighbor8[-5] - (neighbor8[-5] != 0) * padded[k,j]
-    #       count <- count+1
-    # 
-    #       featMat[count,,d]<- neighbor8
-    #     }
-    #   }
-    # }
-
     ### step 2. apply the modelList over featMat
+    
     predMAT <- test(modelList, featMat,test.gbm = T) # for baseline
     # predMAT<- test(modelList,featMat,test.nnet =T)  # for neural network
     # predMAT<- test(modelList,featMat,test.xgboost = T)  # for xgboost
@@ -130,7 +117,8 @@ superResolution <- function(LR_dir, HR_dir, modelList){
     ### step 3. recover high-resolution from predMat and save in HR_dir
     predArray<- array(predMAT,c(rows*2,cols*2,3))
     
-    a <- imgLR[rep(1:nrow(imgLR), times = rep(2, nrow(imgLR))), rep(1:ncol(imgLR), times = rep(2, ncol(imgLR))),]
+    a <- imgLR[rep(1:nrow(imgLR), times = rep(2, nrow(imgLR))), 
+               rep(1:ncol(imgLR), times = rep(2, ncol(imgLR))),]
     predArray <- predArray + a
     
 

@@ -96,14 +96,14 @@ extra_label <- read.csv(train_label_path, colClasses=c("NULL", NA, NA))
 ```{r feature}
 source("../lib/feature.R")
 
-# tm_feature_train <- NA
-# if(run.feature.train){
-#   tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
-#   feat_train <- dat_train$feature
-#   label_train <- dat_train$label
-# }
+tm_feature_train <- NA
+if(run.feature.train){
+  tm_feature_train <- system.time(dat_train <- feature(train_LR_dir, train_HR_dir))
+  feat_train <- dat_train$feature
+  label_train <- dat_train$label
+}
 
-# save(dat_train, file="../output/feature_train.RData")
+save(dat_train, file="../output/feature_train.RData")
 load(file="../output/feature_train.RData")
 feat_train <- dat_train$feature
 label_train <- dat_train$label
@@ -197,17 +197,17 @@ if(run.cv){
 ```{r final_train}
 tm_train=NA
 tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
-# save(fit_train, file="../output/fit_train.RData")
-load(file="../output/fit_train 200 trees.RData")
+save(fit_train, file="../output/fit_train 0.01 shrink 300 trees.RData")
+                                        # load(file="../output/fit_train.RData")
 ```
 
 ### Step 5: Super-resolution for test images
 Feed the final training model with the completely holdout testing data. 
 + `superResolution.R`
-  + Input: a path that points to the folder of low-resolution test images.
-  + Input: a path that points to the folder (empty) of high-resolution test images.
-  + Input: an R object that contains tuned predictors.
-  + Output: construct high-resolution versions for each low-resolution test image.
++ Input: a path that points to the folder of low-resolution test images.
++ Input: a path that points to the folder (empty) of high-resolution test images.
++ Input: an R object that contains tuned predictors.
++ Output: construct high-resolution versions for each low-resolution test image.
 ```{r superresolution}
 source("../lib/superResolution.R")
 test_dir <- "../data/test_set/" # This will be modified for different data sets.

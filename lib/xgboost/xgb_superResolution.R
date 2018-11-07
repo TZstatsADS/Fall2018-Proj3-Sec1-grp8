@@ -2,7 +2,8 @@
 ### Super-resolution ###
 ########################
 
-### Author: Chengliang Tang
+### Author: group 3
+
 ### Project 3
 
 ########### This part is only for testing ############

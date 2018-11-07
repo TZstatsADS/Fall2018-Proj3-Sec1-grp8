@@ -6,9 +6,8 @@ output:
     df_print: paged
 ---
 
-In your final repo, there should be an R markdown file that organizes **all computational steps** for evaluating your proposed image classification framework. 
 
-This file is currently a template for running evaluation experiments of image analysis (or any predictive modeling). You should update it according to your codes but following precisely the same structure. 
+This file runs the evaluation experiments of image analysis (or any predictive modeling).
 
 ```{r}
 if(!require("EBImage")){
@@ -28,7 +27,7 @@ library("gbm")
 
 ### Step 0: specify directories.
 
-Set the working directory to the image folder. Specify the training and the testing set. For data without an independent test/validation set, you need to create your own testing data by random subsampling. In order to obain reproducible results, set.seed() whenever randomization is used. 
+Setting the working directory to the image folder. Specify the training and the testing set. 
 
 ```{r wkdir, eval=FALSE}
 set.seed(2018)
@@ -39,7 +38,8 @@ set.seed(2018)
 
 Provide directories for training images. Low-resolution (LR) image set and High-resolution (HR) image set will be in different subfolders. 
 ```{r}
-train_dir <- "C:/Users/asus/Documents/GitHub/Fall2018-Proj3-Sec1-grp8/data/train_set/" # This will be modified for different data sets.
+
+train_dir <- "../data/train_set/" # This will be modified for different data sets.
 list.dirs(path = train_dir, full.names = TRUE, recursive = TRUE)
 train_LR_dir <- paste(train_dir, "LR/", sep="")
 train_HR_dir <- paste(train_dir, "HR/", sep="")
@@ -55,22 +55,37 @@ In this chunk, we have a set of controls for the evaluation experiments.
 + (T/F) process features for training set
 + (T/F) run evaluation on an independent test set
 + (T/F) process features for test set
++ (T/F) run the final training
 
 ```{r exp_setup}
 run.cv=FALSE # run cross-validation on the training set
 K <- 5  # number of CV folds
 run.feature.train=FALSE # process features for training set
-run.final.train = FALSE
 run.test=TRUE # run evaluation on an independent test set
 run.feature.test=FALSE # process features for test set
+run.final.train = FALSE # run the final training
 ```
 
-Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this example, we use GBM with different `depth`. In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare. In your project, you might compare very different classifiers. You can assign them numerical IDs and labels specific to your project. 
+Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this example, we use GBM with different `depth`. In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare. Note that with higher parameters and a lower shrinkage, it was possible to improve the model, but the reonstruction of higher resolution images would have taken over 30 min. The parameters used below are the ones that allow for running in just under 30 min.
 
 ```{r model_setup}
 depths <- 2:3
 trees <- c(10,20)
 bags <- seq(0.3, 0.7, 0.1)
+
+
+# higher parametrization attempts (too slow)
+# depths<- c(3,4)
+# trees<- c(150, 200, 300)
+# bags <- 0.9
+
+# lower shrinkage attempts (too slow)
+# depths<- c(3,4)
+# trees<- c(150, 200, 300)
+# shrink <- 0.01
+# model_values <- expand.grid(depths = depths, trees = trees, shrink = shrink)
+
+
 
 # all combinations
 model_values <- expand.grid(depths = depths, trees = trees, bags = bags)
@@ -83,11 +98,10 @@ model_values <- expand.grid(depths = depths, trees = trees, bags = bags)
 
 ### Step 3: construct features and responses
 
-`feature.R` should be the wrapper for all your feature engineering functions and options. The function `feature( )` should have options that correspond to different scenarios for your project and produces an R object that contains features and responses that are required by all the models you are going to evaluate later. 
-+ `feature.R`
-  + Input: a path for low-resolution images.
-  + Input: a path for high-resolution images.
-  + Output: an RData file that contains extracted features and corresponding responses
+`feature.R` has two alternatives for the sampling of images: random sampling or keypoint detection (via Laplace transform):
++ Input: a path for low-resolution images.
++ Input: a path for high-resolution images.
++ Output: an RData file that contains extracted features and corresponding responses
 
 ```{r feature}
 source("../lib/feature.R")
@@ -126,7 +140,7 @@ source("../lib/test.R")
 
 
 #### Model selection with cross-validation
-* Do model selection by choosing among different values of training model parameters, that is, the interaction depth for GBM in this example. 
+* Do model selection by choosing among different values of training model parameters. 
 ```{r runcv, message=FALSE, warning=FALSE}
 source("../lib/cross_validation.R")
 
@@ -146,13 +160,18 @@ load(file="../output/err_cv.RData")
 Visualize cross-validation results. 
 ```{r cv_vis}
 if(run.cv){
-  load("../output/err_cv.RData")
-  plot(model_values, err_cv[,1], xlab="Interaction Depth", ylab="CV Error",
-       main="Cross Validation Error", type="n", ylim=c(0, 0.25))
-  points(model_values, err_cv[,1], col="blue", pch=16)
-  lines(model_values, err_cv[,1], col="blue")
-  arrows(model_values, err_cv[,1] - err_cv[,2], model_values, err_cv[,1] + err_cv[,2], 
-        length=0.1, angle=90, code=3)
+  load(file="../output/err_cv.RData")
+  library(scatterplot3d)
+  scatterplot3d(model_values[,3],model_values[,2],err_cv[,1],color = as.factor(model_values[,1]),
+                angle = 45,xlab = "bags",ylab="trees",zlab="err_cv", lab.z = 2)
+  #dev.off()
+  # load("../output/err_cv.RData")
+  # plot(model_values, err_cv[,1], xlab="Interaction Depth", ylab="CV Error",
+  #      main="Cross Validation Error", type="n", ylim=c(0, 0.25))
+  # points(model_values, err_cv[,1], col="blue", pch=16)
+  # lines(model_values, err_cv[,1], col="blue")
+  # arrows(model_values, err_cv[,1] - err_cv[,2], model_values, err_cv[,1] + err_cv[,2], 
+  #       length=0.1, angle=90, code=3)
 }
 ```
 
@@ -164,10 +183,6 @@ if(run.cv){
  model_best <- model_values[which.min(err_cv[,1]),]
 }
 
-if(run.cv){
-  model_nnet_best <- model_values[which.min(err_cv[,1])]
-}
-# par_best <- list(depth=model_best)
 ```
 
 * Train the model with the entire training set using the selected model (model parameter) via cross-validation.
@@ -176,8 +191,8 @@ if(run.cv){
 #tm_train <- system.time(fit_train <- train(feat_train, label_train, model_best))
 #save(fit_train, file="../output/fit_train.RData")
 
-# final model
-model_best[1,] <- c(3,20,0.7)
+# final model for the presentation
+model_best[1,] <- c(3, 20, 0.7)
 
 if(run.feature.train){
   tm_train=NA

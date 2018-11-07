@@ -12,22 +12,11 @@ feature <- function(LR_dir, HR_dir, n_points=300){
   ### Input: a path for low-resolution images + a path for high-resolution images 
   ###        + number of points sampled from each LR image
   ### Output: an .RData file contains processed features and responses for the images
-
-
-  # LR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/LR/"
-  # HR_dir <- "/Users/gabrielbenedict/Google_Drive/docs/UNIS/KU Leuven/Exchange/columbia/Courses/Applied Data Science/Projects/Fall2018-Proj3-Sec1-grp8/data/train_set/HR/"
-
-  # pad zeros first <- padding doesn't take time
-  # imgLR.data matrix ? CHECK
-  # important points (gradiant filter / variance) CHECK
-  # 200 pixels per image CHECK
-  # 1200 pics CHECK
   
-  # 
   ### load libraries
   library("EBImage")
   
-  # Lagrange transform
+  # Laplace transform
   fhi = matrix(1, nrow = 3, ncol = 3)
   fhi[2, 2] = -8
   
@@ -38,14 +27,6 @@ feature <- function(LR_dir, HR_dir, n_points=300){
   featMat <- array(NA, c(n_files * n_points, 8, 3))
   labMat <- array(NA, c(n_files * n_points, 4, 3))
   
-  # library(doMC)
-  # registerDoMC(cores=2)
-  # foreach(i = 1:n_files) %dopar% {
-  ### read LR/HR image pairs
-  # foreach(p = 1:n_points) %dopar% {
-  # profvis({
-  # for(i in  (2 * n_files/3 + 1) : (2 * n_files/3 + 4)){
-  # for(i in  (2 * n_files/3 + 1) : n_files){
   for(i in 1:n_files){  
   
     imgLRObj <- readImage(paste0(LR_dir,  "img_", sprintf("%04d", i), ".jpg"))
@@ -57,25 +38,26 @@ feature <- function(LR_dir, HR_dir, n_points=300){
     width <- dim(imgLR)[1]
     height <- dim(imgLR)[2]
     
-    # Lagrange transform
+    ## step 1. Alternative 1. Sample n_points from imgLR
+    # set.seed(100)
+    # x <- sample(1:width, n_points, replace = T)
+    # y <- sample(1:height, n_points, replace = T)
+    
+    ## step 1. Alternative 2. find the points corresponding to edges on the images (n_points sharpest differences in colours)
+    # Laplace transform
     img_fhi = filter2(imgLR, fhi)
     img_fhi <- normalize(img_fhi)
-  
     a <- (img_fhi[,,1] + img_fhi[,,2] + img_fhi[,,3])/3
     x <- order(a, decreasing = T)[1:n_points] %% width
     x[x==0] <- width # points on the right edge
     y <- order(a, decreasing = T)[1:n_points] %/% width
     y[y==0] <- 1 # points on the top edge
     
-    # ## step 1. sample n_points from imgLR
-    # set.seed(100)
-    # x <- sample(1:width, n_points, replace = T)
-    # y <- sample(1:height, n_points, replace = T)
+    
+    ### step 2. for each sampled point in imgLR
     
     padded <- array(0, c(width+2, height+2, 3))
-    padded[2:(width+1),2:(height+1),] <- imgLR
-    
-    ### step 2. for each sampled point in imgLR,
+    padded[2:(width+1),2:(height+1),] <- imgLR 
     
     for(p in 1:n_points){
         ### step 2.1. save (the neighbor 8 pixels - central pixel) in featMat

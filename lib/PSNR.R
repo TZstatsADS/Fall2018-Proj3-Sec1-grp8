@@ -23,8 +23,6 @@ psnr <- function(reconst_dir, original_dir){
     
     MSE <- sum((original - reconst)^2) / (3 * width * height)
     PSNR[i] <- 20 * log10(1) - 10 * log10(MSE)
-  
-    print(i)
   }
   
   return(PSNR)

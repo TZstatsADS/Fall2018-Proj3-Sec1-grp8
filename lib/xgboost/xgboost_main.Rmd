@@ -1,6 +1,6 @@
 ---
 title: "Project 3 - Example Main Script"
-author: "Chengliang Tang, Tian Zheng"
+author: "zx2229"
 output: html_notebook
 ---
 
@@ -256,9 +256,9 @@ if(run.test){
 ### filter image
 
 ```{r}
-Image <- readImage(paste0(predict_HR_dir,"img_", sprintf("%04d", i), ".jpg"))
-medFltr <- medianFilter(Image, 1.1)
-display(medFltr)
+#Image <- readImage(paste0(predict_HR_dir,"img_", sprintf("%04d", i), ".jpg"))
+#medFltr <- medianFilter(Image, 1.1)
+#display(medFltr)
 
 
 ```

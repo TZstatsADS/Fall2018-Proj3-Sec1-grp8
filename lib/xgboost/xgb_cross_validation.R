@@ -2,7 +2,7 @@
 ### Cross Validation ###
 ########################
 
-### Author: Chengliang Tang
+### Author:zx2229
 ### Project 3
 
 ########## xgboost
@@ -31,7 +31,7 @@ cv.function <- function(X.train, y.train, par=NULL, K){
       
   cv.error[i] <- mean((pred - as.numeric(test.label))^2)
   
-  #PSNR[i] = 20*log10(max(as.numeric(test.label)))-10*log10(cv.error[i])
+  
   
   print(i)
   

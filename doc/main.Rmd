@@ -1,6 +1,6 @@
 ---
 title: "Project 3 - Example Main Script"
-author: "Chengliang Tang, Tian Zheng"
+author: "Benedict, Gabriel ; Qiaqia, Sun; Zhangyang, Xu; Huiyu, Zhang"
 output:
   html_document:
     df_print: paged

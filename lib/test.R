@@ -37,7 +37,7 @@ test <- function(modelList, dat_test, test.gbm=F, test.rf=F, test.nnet=F,test.xg
     if(test.nnet){
       featMat_dataframe<- data.frame(matrix(featMat,ncol = 8))
       colnames(featMat_dataframe)<- paste0("feature",1:8)
-      predArr[,c1,c2]<- predict(modelList[[i]],featMat_dataframe,type="raw")$fit
+      predArr[,c1,c2]<- predict(modelList[[i]]$fit,featMat_dataframe,type="raw")
     }
     if(test.xgboost){
       predArr[, c1, c2] <- predict(fit_train, newdata=featMat)

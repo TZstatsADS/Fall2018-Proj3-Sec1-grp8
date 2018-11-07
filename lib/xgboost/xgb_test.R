@@ -2,7 +2,7 @@
 ### Fit the regression model with testing data ###
 ######################################################
 
-### Author: Chengliang Tang
+### Author: group3
 ### Project 3
 
 
